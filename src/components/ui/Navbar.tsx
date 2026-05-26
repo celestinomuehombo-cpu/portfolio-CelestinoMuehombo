@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Moon, Sun, Menu, X } from 'lucide-react'
+import { Moon, Sun, Menu, X, Lock } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 
 export default function Navbar() {
@@ -13,6 +13,8 @@ export default function Navbar() {
     { label: 'Parcours', href: '#cv' },
     { label: 'Contact', href: '#contact' },
   ]
+
+  const adminUrl = `${import.meta.env.BASE_URL}admin`
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300
@@ -41,7 +43,8 @@ export default function Navbar() {
         </ul>
 
         {/* Botões direita */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+
           {/* Toggle dark/light */}
           <button
             onClick={toggleTheme}
@@ -51,6 +54,16 @@ export default function Navbar() {
               transition-all duration-200">
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
+
+          {/* Admin */}
+          <a href={adminUrl}
+            className="p-2 rounded-full border border-border-light dark:border-border-dark
+              text-muted hover:text-orange-500 dark:hover:text-orange-400
+              hover:border-orange-500 dark:hover:border-orange-400
+              transition-all duration-200"
+            title="Administration">
+            <Lock size={18} />
+          </a>
 
           {/* Burger mobile */}
           <button

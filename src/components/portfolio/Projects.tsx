@@ -10,6 +10,9 @@ const DEFAULT_PROJECTS = [
     github_url: null,
     demo_url: null,
     image_url: null,
+    images: [],
+    documents: [],
+    document_labels: [],
     status: 'wip',
     display_order: 0,
     category: 'Entrepreneuriat',
@@ -18,11 +21,14 @@ const DEFAULT_PROJECTS = [
   {
     id: '2',
     title: 'Portfolio Personnel',
-    description: 'Ce portfolio — conçu et développé from scratch avec React, TypeScript et Tailwind. Système de gestion de contenu via Supabase avec painel admin.',
+    description: 'Ce portfolio — conçu et développé from scratch avec React, TypeScript et Tailwind. Système de gestion de contenu via Supabase avec panneau admin.',
     tech: ['React', 'TypeScript', 'Tailwind CSS', 'Supabase', 'Vite'],
     github_url: 'https://github.com/celestinomuehombo-cpu',
     demo_url: null,
     image_url: null,
+    images: [],
+    documents: [],
+    document_labels: [],
     status: 'done',
     display_order: 1,
     category: 'Web',
@@ -36,6 +42,9 @@ const DEFAULT_PROJECTS = [
     github_url: null,
     demo_url: null,
     image_url: null,
+    images: [],
+    documents: [],
+    document_labels: [],
     status: 'done',
     display_order: 2,
     category: 'Réseaux',
@@ -44,11 +53,14 @@ const DEFAULT_PROJECTS = [
   {
     id: '4',
     title: 'Chat TCP Client/Serveur',
-    description: 'Application de messagerie en temps réel utilisant des sockets TCP. Serveur multi-clients avec threading, protocole applicatif JSON, commandes /list /msg /quit.',
+    description: 'Application de messagerie en temps réel utilisant des sockets TCP. Serveur multi-clients avec threading, protocole applicatif JSON.',
     tech: ['Python 3', 'socket', 'threading', 'JSON'],
     github_url: 'https://github.com/celestinomuehombo-cpu',
     demo_url: null,
     image_url: null,
+    images: [],
+    documents: [],
+    document_labels: [],
     status: 'done',
     display_order: 3,
     category: 'Programmation',
@@ -62,6 +74,9 @@ const DEFAULT_PROJECTS = [
     github_url: 'https://github.com/celestinomuehombo-cpu',
     demo_url: null,
     image_url: null,
+    images: [],
+    documents: [],
+    document_labels: [],
     status: 'done',
     display_order: 4,
     category: 'Automatisation',
@@ -75,6 +90,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Réseaux': 'text-blue-700 bg-blue-700/10 dark:text-blue-400',
   'Programmation': 'text-orange-500 bg-orange-500/10',
   'Automatisation': 'text-orange-500 bg-orange-500/10',
+  'Cybersécurité': 'text-blue-700 bg-blue-700/10 dark:text-blue-400',
 }
 
 export default function Projects() {
@@ -105,7 +121,7 @@ export default function Projects() {
           </h2>
         </div>
 
-        {/* Projet mis en avant — Tangisa */}
+        {/* Projet mis en avant */}
         {highlighted && (
           <div className="mb-8 rounded-2xl overflow-hidden border
             border-border-light dark:border-border-dark
@@ -113,20 +129,24 @@ export default function Projects() {
             hover:border-orange-500/30 transition-all duration-300 group">
             <div className="grid grid-cols-1 lg:grid-cols-2">
 
-              {/* Image placeholder */}
+              {/* Image */}
               <div className="aspect-video lg:aspect-auto min-h-[280px]
                 bg-gradient-to-br from-orange-500/15 to-blue-700/15
                 flex items-center justify-center relative overflow-hidden">
-                <div className="text-center">
-                  <div className="w-20 h-20 rounded-2xl bg-orange-500
-                    flex items-center justify-center mx-auto mb-4
-                    shadow-lg shadow-orange-500/30">
-                    <span className="text-white font-black text-2xl"
-                      style={{ fontFamily: "'Poppins', sans-serif" }}>T</span>
+                {highlighted.image_url ? (
+                  <img src={highlighted.image_url} alt={highlighted.title}
+                    className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-center">
+                    <div className="w-20 h-20 rounded-2xl bg-orange-500
+                      flex items-center justify-center mx-auto mb-4
+                      shadow-lg shadow-orange-500/30">
+                      <span className="text-white font-black text-2xl"
+                        style={{ fontFamily: "'Poppins', sans-serif" }}>T</span>
+                    </div>
+                    <p className="text-sm text-muted font-medium">{highlighted.title}</p>
                   </div>
-                  <p className="text-sm text-muted font-medium">Tangisa</p>
-                </div>
-                {/* Decorative circles */}
+                )}
                 <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full
                   bg-orange-500/10" />
                 <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full
@@ -138,13 +158,12 @@ export default function Projects() {
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <span className={`text-xs font-semibold px-3 py-1 rounded-full
-                      ${CATEGORY_COLORS[highlighted.category]}`}>
+                      ${CATEGORY_COLORS[highlighted.category ?? ''] ?? 'text-muted bg-surface-light'}`}>
                       {highlighted.category}
                     </span>
                     <span className="text-xs font-semibold px-3 py-1 rounded-full
                       text-orange-500 bg-orange-500/10 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500
-                        animate-pulse" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
                       En cours
                     </span>
                   </div>
@@ -165,7 +184,24 @@ export default function Projects() {
                       </span>
                     ))}
                   </div>
+
+                  {/* Documents */}
+                  {(highlighted.documents ?? []).length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {(highlighted.documents ?? []).map((doc, i) => (
+                        <a key={i} href={doc} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs
+                            px-3 py-1.5 rounded-lg
+                            bg-blue-700/10 text-blue-700 dark:text-blue-400
+                            hover:bg-blue-700/20 transition-colors duration-200">
+                          <ExternalLink size={12} />
+                          {(highlighted.document_labels ?? [])[i] || `Document ${i + 1}`}
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
+
                 <div className="flex gap-3">
                   {highlighted.demo_url && (
                     <a href={highlighted.demo_url}
@@ -185,7 +221,6 @@ export default function Projects() {
                       className="inline-flex items-center gap-2 px-5 py-2.5
                         rounded-full border border-border-light dark:border-border-dark
                         text-muted hover:text-text-light dark:hover:text-text-dark
-                        hover:border-text-light dark:hover:border-text-dark
                         text-sm font-medium transition-all duration-200">
                       <GitBranch size={14} />
                       GitHub
@@ -203,14 +238,23 @@ export default function Projects() {
             <div key={project.id}
               className="rounded-2xl border border-border-light dark:border-border-dark
                 bg-surface-light dark:bg-surface2 p-6
-                hover:border-orange-500/30 dark:hover:border-orange-500/30
+                hover:border-orange-500/30
                 transition-all duration-300 group hover:-translate-y-1
                 hover:shadow-lg hover:shadow-orange-500/5">
+
+              {/* Image si disponible */}
+              {(project.images ?? []).length > 0 && (
+                <div className="w-full aspect-video rounded-xl overflow-hidden mb-4
+                  border border-border-light dark:border-border-dark">
+                  <img src={(project.images ?? [])[0]} alt={project.title}
+                    className="w-full h-full object-cover" />
+                </div>
+              )}
 
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <span className={`text-xs font-semibold px-3 py-1 rounded-full
-                  ${CATEGORY_COLORS[project.category]}`}>
+                  ${CATEGORY_COLORS[project.category ?? ''] ?? 'text-muted bg-surface-light'}`}>
                   {project.category}
                 </span>
                 <div className="flex gap-2">
@@ -236,8 +280,9 @@ export default function Projects() {
 
               {/* Title */}
               <h3 className="font-head font-bold text-lg
-                text-text-light dark:text-text-dark mb-2 group-hover:text-orange-500
-                transition-colors duration-200 flex items-center gap-2">
+                text-text-light dark:text-text-dark mb-2
+                group-hover:text-orange-500 transition-colors duration-200
+                flex items-center gap-2">
                 {project.title}
                 <ArrowUpRight size={16} className="opacity-0 group-hover:opacity-100
                   transition-opacity duration-200 -translate-y-0.5" />
@@ -247,6 +292,22 @@ export default function Projects() {
               <p className="text-sm font-light leading-relaxed text-muted mb-4">
                 {project.description}
               </p>
+
+              {/* Documents */}
+              {(project.documents ?? []).length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {(project.documents ?? []).map((doc, i) => (
+                    <a key={i} href={doc} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs
+                        px-2.5 py-1 rounded-lg
+                        bg-blue-700/10 text-blue-700 dark:text-blue-400
+                        hover:bg-blue-700/20 transition-colors duration-200">
+                      <ExternalLink size={11} />
+                      {(project.document_labels ?? [])[i] || `Document ${i + 1}`}
+                    </a>
+                  ))}
+                </div>
+              )}
 
               {/* Tech */}
               <div className="flex flex-wrap gap-2">

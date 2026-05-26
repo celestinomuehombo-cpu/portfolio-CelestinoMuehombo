@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #f9f9fb;
+  color: #0f0f14;
+}
+
+.dark body {
+  background: #0a0a0f;
+  color: #f0f0f5;
+}
+
+.dark .text-muted {
+  color: #a1a1b5;
+}
+
+.dark input,
+.dark textarea {
+  color: #f0f0f5;
+  background: #18181f;
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #7a7a90;
+}

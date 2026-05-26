@@ -9,7 +9,7 @@ const queryClient = new QueryClient()
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter basename="/portfolio-celestino/">
         <Routes>
           <Route path="/" element={<Portfolio />} />
           <Route path="/admin" element={<Login />} />
@@ -19,5 +19,4 @@ function App() {
     </QueryClientProvider>
   )
 }
-
 export default App

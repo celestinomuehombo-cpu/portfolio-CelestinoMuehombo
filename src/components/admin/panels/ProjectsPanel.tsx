@@ -16,6 +16,44 @@ interface Project {
   highlight?: boolean
 }
 
+const DEFAULT_PROJECTS: Project[] = [
+  {
+    title: 'Tangisa',
+    description: 'Plateforme marketplace éducative pour le marché angolais connectant élèves et tuteurs vérifiés. Système de vérification en 4 étapes, dashboard parental en temps réel, 2 plans d\'abonnement.',
+    tech: ['React', 'TypeScript', 'Supabase', 'Flutterwave', 'Netlify'],
+    github_url: null, demo_url: null, image_url: null,
+    status: 'wip', display_order: 0, category: 'Entrepreneuriat', highlight: true,
+  },
+  {
+    title: 'Portfolio Personnel',
+    description: 'Ce portfolio — conçu et développé from scratch avec React, TypeScript et Tailwind. Système de gestion de contenu via Supabase avec panneau admin.',
+    tech: ['React', 'TypeScript', 'Tailwind CSS', 'Supabase', 'Vite'],
+    github_url: 'https://github.com/celestinomuehombo-cpu', demo_url: null, image_url: null,
+    status: 'done', display_order: 1, category: 'Web', highlight: false,
+  },
+  {
+    title: 'Infrastructure GRE/IPsec Multi-sites',
+    description: 'Architecture réseau complète interconnectant deux sites via tunnel GRE encapsulé dans IPsec. Segmentation VLAN, pare-feux ASA, routage OSPF.',
+    tech: ['Cisco IOS', 'GRE', 'IPsec', 'OSPF', 'Packet Tracer'],
+    github_url: null, demo_url: null, image_url: null,
+    status: 'done', display_order: 2, category: 'Réseaux', highlight: false,
+  },
+  {
+    title: 'Chat TCP Client/Serveur',
+    description: 'Application de messagerie en temps réel utilisant des sockets TCP. Serveur multi-clients avec threading, protocole applicatif JSON.',
+    tech: ['Python 3', 'socket', 'threading', 'JSON'],
+    github_url: 'https://github.com/celestinomuehombo-cpu', demo_url: null, image_url: null,
+    status: 'done', display_order: 3, category: 'Programmation', highlight: false,
+  },
+  {
+    title: 'Scripts Admin Réseau',
+    description: 'Suite de scripts d\'automatisation pour backup des configs Cisco via SSH, monitoring de disponibilité avec alertes email et génération de rapports HTML.',
+    tech: ['Python 3', 'Bash', 'Paramiko', 'Netmiko', 'cron'],
+    github_url: 'https://github.com/celestinomuehombo-cpu', demo_url: null, image_url: null,
+    status: 'done', display_order: 4, category: 'Automatisation', highlight: false,
+  },
+]
+
 export default function ProjectsPanel() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
@@ -26,7 +64,8 @@ export default function ProjectsPanel() {
   useEffect(() => {
     supabase.from('projects').select('*').order('display_order')
       .then(({ data }) => {
-        if (data) setProjects(data)
+        if (data && data.length > 0) setProjects(data)
+        else setProjects(DEFAULT_PROJECTS)
         setLoading(false)
       })
   }, [])

@@ -4,22 +4,27 @@ import { Briefcase, GraduationCap, Award } from 'lucide-react'
 
 type TabType = 'experience' | 'education' | 'certifications'
 
-const LogoBadge = ({ initials, color, logoUrl }: {
-  initials: string
-  color: string
+const COLORS = ['#f97316', '#1d4ed8', '#16a34a', '#9333ea', '#0f172a', '#049fd9', '#e84040']
+
+function toInitials(name: string) {
+  return name.split(/[\s\-&]+/).slice(0, 3).map(w => w[0]).join('').toUpperCase().slice(0, 4)
+}
+
+const LogoBadge = ({ name, logoUrl, colorIndex = 0 }: {
+  name: string
   logoUrl?: string | null
+  colorIndex?: number
 }) => (
   <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0
     border border-border-light dark:border-border-dark">
     {logoUrl ? (
-      <img src={logoUrl} alt={initials}
-        className="w-full h-full object-contain p-1
-          bg-white dark:bg-surface2" />
+      <img src={logoUrl} alt={name}
+        className="w-full h-full object-contain p-1 bg-white dark:bg-surface2" />
     ) : (
       <div className="w-full h-full flex items-center justify-center
         text-white text-xs font-black"
-        style={{ backgroundColor: color, fontFamily: "'Poppins', sans-serif" }}>
-        {initials}
+        style={{ backgroundColor: COLORS[colorIndex % COLORS.length], fontFamily: "'Poppins', sans-serif" }}>
+        {toInitials(name)}
       </div>
     )}
   </div>
@@ -170,13 +175,13 @@ export default function CV() {
           {/* Expériences */}
           {activeTab === 'experience' && (
             <div className="space-y-6">
-              {expData.map((exp) => (
+              {expData.map((exp, idx) => (
                 <div key={exp.id} className="relative pl-16">
                   <div className="absolute left-0 top-2">
                     <LogoBadge
-                      initials={exp.logo.initials}
-                      color={exp.logo.color}
+                      name={exp.company}
                       logoUrl={exp.logo_url}
+                      colorIndex={idx}
                     />
                   </div>
                   <div className="bg-white dark:bg-surface2
@@ -209,13 +214,13 @@ export default function CV() {
           {/* Formations */}
           {activeTab === 'education' && (
             <div className="space-y-6">
-              {eduData.map((edu) => (
+              {eduData.map((edu, idx) => (
                 <div key={edu.id} className="relative pl-16">
                   <div className="absolute left-0 top-2">
                     <LogoBadge
-                      initials={edu.logo.initials}
-                      color={edu.logo.color}
+                      name={edu.institution}
                       logoUrl={edu.logo_url}
+                      colorIndex={idx + 2}
                     />
                   </div>
                   <div className="bg-white dark:bg-surface2
@@ -248,13 +253,13 @@ export default function CV() {
           {/* Certifications */}
           {activeTab === 'certifications' && (
             <div className="space-y-6">
-              {certData.map((cert) => (
+              {certData.map((cert, idx) => (
                 <div key={cert.id} className="relative pl-16">
                   <div className="absolute left-0 top-2">
                     <LogoBadge
-                      initials={cert.logo.initials}
-                      color={cert.logo.color}
+                      name={cert.issuer}
                       logoUrl={cert.logo_url}
+                      colorIndex={idx + 1}
                     />
                   </div>
                   <div className="bg-white dark:bg-surface2

@@ -2,6 +2,31 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { Save, Plus, Trash2, Upload, X, Image, Film, FileText, Eye, EyeOff } from 'lucide-react'
 
+function toArr(val: unknown): string[] {
+  if (Array.isArray(val)) return val as string[]
+  if (typeof val === 'string' && val.length > 0) {
+    if (val.startsWith('[')) {
+      try { const p = JSON.parse(val); if (Array.isArray(p)) return p } catch { /* */ }
+    }
+    if (val.startsWith('{')) {
+      return val.slice(1, -1).split(',').map(s => s.replace(/^"|"$/g, '').trim()).filter(Boolean)
+    }
+  }
+  return []
+}
+
+function normalizeProject(p: Record<string, unknown>): Project {
+  return {
+    ...(p as Project),
+    tech: toArr(p.tech),
+    images: toArr(p.images),
+    videos: toArr(p.videos),
+    documents: toArr(p.documents),
+    document_labels: toArr(p.document_labels),
+    skill_codes: toArr(p.skill_codes),
+  }
+}
+
 interface Project {
   id?: string
   title: string
@@ -100,9 +125,10 @@ const DEFAULT_PROJECTS: Project[] = [
 export default function ProjectsPanel() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
+  const [saving, setSaving] = useState<number | null>(null)
+  const [success, setSuccess] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [usingDefaults, setUsingDefaults] = useState(false)
   const [newTech, setNewTech] = useState<Record<number, string>>({})
   const [newVideoUrl, setNewVideoUrl] = useState<Record<number, string>>({})
   const [newDocLabel, setNewDocLabel] = useState<Record<number, string>>({})
@@ -110,15 +136,24 @@ export default function ProjectsPanel() {
 
   useEffect(() => {
     supabase.from('projects').select('*').order('display_order')
-      .then(({ data }) => {
-        if (data && data.length > 0) setProjects(data)
-        else setProjects(DEFAULT_PROJECTS)
+      .then(({ data, error: err }) => {
+        if (err) {
+          setError(`Erreur de chargement: ${err.message}`)
+          setLoading(false)
+          return
+        }
+        if (data && data.length > 0) {
+          setProjects(data.map(p => normalizeProject(p as Record<string, unknown>)))
+        } else {
+          setProjects(DEFAULT_PROJECTS)
+          setUsingDefaults(true)
+        }
         setLoading(false)
       })
   }, [])
 
-  const showSuccess = (id: string) => {
-    setSuccess(id)
+  const showSuccess = (idx: number) => {
+    setSuccess(idx)
     setTimeout(() => setSuccess(null), 3000)
   }
 
@@ -138,7 +173,7 @@ export default function ProjectsPanel() {
   }
 
   const saveProject = async (proj: Project, index: number) => {
-    setSaving(proj.id ?? 'new')
+    setSaving(index)
     setError(null)
     const payload = { ...proj }
     if (proj.id) {
@@ -147,15 +182,22 @@ export default function ProjectsPanel() {
     } else {
       const { data, error: err } = await supabase.from('projects').insert(payload).select().single()
       if (err) { setError(`Erreur: ${err.message}`); setSaving(null); return }
-      if (data) setProjects(prev => prev.map((p, i) => i === index ? data : p))
+      if (data) {
+        setProjects(prev => prev.map((p, i) => i === index ? normalizeProject(data as Record<string, unknown>) : p))
+        setUsingDefaults(false)
+      }
     }
     setSaving(null)
-    showSuccess(proj.id ?? `new-${index}`)
+    showSuccess(index)
   }
 
   const deleteProject = async (id: string) => {
     await supabase.from('projects').delete().eq('id', id)
     setProjects(prev => prev.filter(p => p.id !== id))
+  }
+
+  const removeUnsaved = (index: number) => {
+    setProjects(prev => prev.filter((_, i) => i !== index))
   }
 
   const addProject = () => {
@@ -171,13 +213,13 @@ export default function ProjectsPanel() {
   const addTech = (index: number) => {
     const tech = newTech[index]?.trim()
     if (!tech) return
-    updateProject(index, 'tech', [...(projects[index].tech ?? []), tech])
+    updateProject(index, 'tech', [...toArr(projects[index].tech), tech])
     setNewTech(prev => ({ ...prev, [index]: '' }))
   }
 
   const removeTech = (index: number, techIndex: number) => {
     updateProject(index, 'tech',
-      projects[index].tech.filter((_, i) => i !== techIndex))
+      toArr(projects[index].tech).filter((_, i) => i !== techIndex))
   }
 
   const inputClass = `w-full px-4 py-2.5 rounded-xl
@@ -206,6 +248,18 @@ export default function ProjectsPanel() {
           Gérez vos projets — Tangisa et projets académiques
         </p>
       </div>
+
+      {usingDefaults && (
+        <div className="mb-4 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-sm text-orange-500">
+          Aucun projet en base de données — ces données sont des exemples. Enregistrez-les pour les activer sur le portfolio.
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-500">
+          {error}
+        </div>
+      )}
 
       <div className="space-y-4">
         {projects.map((proj, index) => (
@@ -295,16 +349,16 @@ export default function ProjectsPanel() {
                 <p className="text-xs text-muted flex items-center gap-1.5 mb-2">
                   <Image size={12} className="text-orange-500" /> Photos
                 </p>
-                {(proj.images ?? []).length > 0 && (
+                {toArr(proj.images).length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mb-2">
-                    {(proj.images ?? []).map((img, ii) => (
+                    {toArr(proj.images).map((img, ii) => (
                       <div key={ii} className="relative group">
                         <img src={img} alt={`photo ${ii + 1}`}
                           className="w-full aspect-video object-cover rounded-lg
                             border border-border-light dark:border-border-dark" />
                         <button
                           onClick={() => updateProject(index, 'images',
-                            (proj.images ?? []).filter((_, idx) => idx !== ii))}
+                            toArr(proj.images).filter((_, idx) => idx !== ii))}
                           className="absolute top-1 right-1 p-1 rounded-full
                             bg-red-500 text-white opacity-0 group-hover:opacity-100
                             transition-opacity">
@@ -328,7 +382,7 @@ export default function ProjectsPanel() {
                       setUploading(prev => ({ ...prev, [`img-${index}`]: true }))
                       const urls = await Promise.all(files.map(f => uploadFile(f, 'images')))
                       const valid = urls.filter(Boolean) as string[]
-                      updateProject(index, 'images', [...(proj.images ?? []), ...valid])
+                      updateProject(index, 'images', [...toArr(proj.images), ...valid])
                       setUploading(prev => ({ ...prev, [`img-${index}`]: false }))
                     }} />
                 </label>
@@ -340,18 +394,18 @@ export default function ProjectsPanel() {
                   <Film size={12} className="text-blue-600 dark:text-blue-400" /> Vidéos
                   <span>(YouTube, Vimeo ou lien direct)</span>
                 </p>
-                {(proj.videos ?? []).map((vid, vi) => (
+                {toArr(proj.videos).map((vid, vi) => (
                   <div key={vi} className="flex items-center gap-2 mb-1.5">
                     <input type="url" value={vid}
                       onChange={e => {
-                        const updated = [...(proj.videos ?? [])]
+                        const updated = [...toArr(proj.videos)]
                         updated[vi] = e.target.value
                         updateProject(index, 'videos', updated)
                       }}
                       placeholder="https://youtube.com/watch?v=..."
                       className={`flex-1 ${inputClass}`} />
                     <button onClick={() => updateProject(index, 'videos',
-                        (proj.videos ?? []).filter((_, idx) => idx !== vi))}
+                        toArr(proj.videos).filter((_, idx) => idx !== vi))}
                       className="p-2 text-muted hover:text-red-500 transition-colors">
                       <X size={14} />
                     </button>
@@ -363,7 +417,7 @@ export default function ProjectsPanel() {
                     onChange={e => setNewVideoUrl(prev => ({ ...prev, [index]: e.target.value }))}
                     onKeyDown={e => {
                       if (e.key === 'Enter' && newVideoUrl[index]?.trim()) {
-                        updateProject(index, 'videos', [...(proj.videos ?? []), newVideoUrl[index].trim()])
+                        updateProject(index, 'videos', [...toArr(proj.videos), newVideoUrl[index].trim()])
                         setNewVideoUrl(prev => ({ ...prev, [index]: '' }))
                       }
                     }}
@@ -372,7 +426,7 @@ export default function ProjectsPanel() {
                   <button
                     onClick={() => {
                       if (!newVideoUrl[index]?.trim()) return
-                      updateProject(index, 'videos', [...(proj.videos ?? []), newVideoUrl[index].trim()])
+                      updateProject(index, 'videos', [...toArr(proj.videos), newVideoUrl[index].trim()])
                       setNewVideoUrl(prev => ({ ...prev, [index]: '' }))
                     }}
                     className="px-3 py-2 rounded-xl bg-blue-600/10
@@ -391,18 +445,18 @@ export default function ProjectsPanel() {
                 flex items-center gap-1.5 mb-3">
                 <FileText size={13} className="text-orange-500" /> Documents PDF
               </p>
-              {(proj.documents ?? []).map((doc, di) => (
+              {toArr(proj.documents).map((doc, di) => (
                 <div key={di} className="flex items-center gap-2 mb-1.5">
                   <a href={doc} target="_blank" rel="noopener noreferrer"
                     className="flex-1 text-xs px-3 py-2 rounded-xl
                       bg-blue-600/10 text-blue-600 dark:text-blue-400
                       border border-blue-600/20 truncate hover:bg-blue-600/20 transition-colors">
-                    {(proj.document_labels ?? [])[di] || `Document ${di + 1}`}
+                    {toArr(proj.document_labels)[di] || `Document ${di + 1}`}
                   </a>
                   <button
                     onClick={() => {
-                      updateProject(index, 'documents', (proj.documents ?? []).filter((_, idx) => idx !== di))
-                      updateProject(index, 'document_labels', (proj.document_labels ?? []).filter((_, idx) => idx !== di))
+                      updateProject(index, 'documents', toArr(proj.documents).filter((_, idx) => idx !== di))
+                      updateProject(index, 'document_labels', toArr(proj.document_labels).filter((_, idx) => idx !== di))
                     }}
                     className="p-2 text-muted hover:text-red-500 transition-colors">
                     <X size={14} />
@@ -429,8 +483,8 @@ export default function ProjectsPanel() {
                       setUploading(prev => ({ ...prev, [`pdf-${index}`]: true }))
                       const url = await uploadFile(file, 'docs')
                       if (url) {
-                        updateProject(index, 'documents', [...(proj.documents ?? []), url])
-                        updateProject(index, 'document_labels', [...(proj.document_labels ?? []),
+                        updateProject(index, 'documents', [...toArr(proj.documents), url])
+                        updateProject(index, 'document_labels', [...toArr(proj.document_labels),
                           newDocLabel[index]?.trim() || file.name.replace('.pdf', '')])
                         setNewDocLabel(prev => ({ ...prev, [index]: '' }))
                       }
@@ -501,7 +555,7 @@ export default function ProjectsPanel() {
             <div className="mb-3">
               <label className="text-xs text-muted block mb-2">Technologies</label>
               <div className="flex flex-wrap gap-2 mb-2">
-                {(proj.tech ?? []).map((t, ti) => (
+                {toArr(proj.tech).map((t, ti) => (
                   <span key={ti} className="flex items-center gap-1.5
                     px-3 py-1 rounded-full text-xs font-medium
                     bg-surface-light dark:bg-surface-dark
@@ -564,17 +618,17 @@ export default function ProjectsPanel() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {group.codes.map(({ code, title }) => {
-                        const selected = (proj.skill_codes ?? []).includes(code)
+                        const skillCodes = toArr(proj.skill_codes)
+                        const selected = skillCodes.includes(code)
                         return (
                           <button
                             key={code}
                             type="button"
                             onClick={() => {
-                              const current = proj.skill_codes ?? []
                               updateProject(index, 'skill_codes',
                                 selected
-                                  ? current.filter(c => c !== code)
-                                  : [...current, code]
+                                  ? skillCodes.filter(c => c !== code)
+                                  : [...skillCodes, code]
                               )
                             }}
                             title={title}
@@ -591,10 +645,10 @@ export default function ProjectsPanel() {
                   </div>
                 ))}
               </div>
-              {(proj.skill_codes ?? []).length > 0 && (
+              {toArr(proj.skill_codes).length > 0 && (
                 <p className="text-xs text-muted mt-2">
-                  {(proj.skill_codes ?? []).length} compétence(s) liée(s) :&nbsp;
-                  <span className="text-orange-500">{(proj.skill_codes ?? []).join(', ')}</span>
+                  {toArr(proj.skill_codes).length} compétence(s) liée(s) :&nbsp;
+                  <span className="text-orange-500">{toArr(proj.skill_codes).join(', ')}</span>
                 </p>
               )}
             </div>
@@ -602,27 +656,23 @@ export default function ProjectsPanel() {
             {/* Actions */}
             <div className="flex items-center justify-between">
               <button onClick={() => saveProject(proj, index)}
-                disabled={saving === (proj.id ?? `new-${index}`)}
+                disabled={saving === index}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl
                   bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium
                   transition-all duration-200 disabled:opacity-50">
                 <Save size={14} />
-                {saving === (proj.id ?? `new-${index}`) ? 'Enregistrement...' : 'Enregistrer'}
+                {saving === index ? 'Enregistrement...' : 'Enregistrer'}
               </button>
               <div className="flex items-center gap-3">
-                {success === (proj.id ?? `new-${index}`) && (
+                {success === index && (
                   <span className="text-xs text-green-500 font-medium">✓ Enregistré</span>
                 )}
-                {error && saving === null && (
-                  <span className="text-xs text-red-500 font-medium">{error}</span>
-                )}
-                {proj.id && (
-                  <button onClick={() => deleteProject(proj.id!)}
-                    className="p-2 rounded-xl text-muted hover:text-red-500
-                      hover:bg-red-500/10 transition-all duration-200">
-                    <Trash2 size={14} />
-                  </button>
-                )}
+                <button
+                  onClick={() => proj.id ? deleteProject(proj.id) : removeUnsaved(index)}
+                  className="p-2 rounded-xl text-muted hover:text-red-500
+                    hover:bg-red-500/10 transition-all duration-200">
+                  <Trash2 size={14} />
+                </button>
               </div>
             </div>
           </div>

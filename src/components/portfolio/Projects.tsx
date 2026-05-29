@@ -283,8 +283,15 @@ export default function Projects() {
     </section>
   )
 
-  // Mostra apenas dados do Supabase, sem fallback hardcoded
-  const projects = ((isError || !projectsData) ? [] : projectsData) as Project[]
+  if (isError) return (
+    <section id="projects" className="py-32 bg-white dark:bg-surface-dark">
+      <div className="max-w-6xl mx-auto px-16 text-center text-muted text-sm">
+        Impossible de charger les projets. Vérifiez votre connexion.
+      </div>
+    </section>
+  )
+
+  const projects = (projectsData ?? []) as Project[]
 
   const visible = projects
     .filter(p => p.visible !== false)

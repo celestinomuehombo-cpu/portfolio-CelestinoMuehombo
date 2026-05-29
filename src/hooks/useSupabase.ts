@@ -1,6 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 
+function toArr(val: unknown): string[] {
+  if (Array.isArray(val)) return val as string[]
+  if (typeof val === 'string' && val.length > 0) {
+    if (val.startsWith('[')) {
+      try { const p = JSON.parse(val); if (Array.isArray(p)) return p } catch { /* */ }
+    }
+    if (val.startsWith('{')) {
+      return val.slice(1, -1).split(',').map(s => s.replace(/^"|"$/g, '').trim()).filter(Boolean)
+    }
+  }
+  return []
+}
+
 export function useHero() {
   return useQuery({
     queryKey: ['hero'],
@@ -52,7 +65,15 @@ export function useProjects() {
         .select('*')
         .order('display_order')
       if (error) throw error
-      return data
+      return (data ?? []).map(p => ({
+        ...p,
+        tech: toArr(p.tech),
+        images: toArr(p.images),
+        videos: toArr(p.videos),
+        documents: toArr(p.documents),
+        document_labels: toArr(p.document_labels),
+        skill_codes: toArr(p.skill_codes),
+      }))
     },
   })
 }

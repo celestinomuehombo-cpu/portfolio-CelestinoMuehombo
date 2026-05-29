@@ -3,6 +3,19 @@ import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ArrowLeft, ExternalLink, GitBranch, Play, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
 
+function toArr(val: unknown): string[] {
+  if (Array.isArray(val)) return val as string[]
+  if (typeof val === 'string' && val.length > 0) {
+    if (val.startsWith('[')) {
+      try { const p = JSON.parse(val); if (Array.isArray(p)) return p } catch { /* */ }
+    }
+    if (val.startsWith('{')) {
+      return val.slice(1, -1).split(',').map(s => s.replace(/^"|"$/g, '').trim()).filter(Boolean)
+    }
+  }
+  return []
+}
+
 interface Project {
   id: string; title: string; description: string; tech: string[] | null
   github_url: string | null; demo_url: string | null; image_url: string | null
@@ -29,7 +42,22 @@ export default function ProjectDetail() {
   useEffect(() => {
     if (!id) { setLoading(false); return }
     supabase.from('projects').select('*').eq('id', id).single()
-      .then(({ data }) => { setProject(data ?? null); setLoading(false) }, () => setLoading(false))
+      .then(({ data }) => {
+        if (data) {
+          setProject({
+            ...data,
+            tech: toArr(data.tech),
+            images: toArr(data.images),
+            videos: toArr(data.videos),
+            documents: toArr(data.documents),
+            document_labels: toArr(data.document_labels),
+            skill_codes: toArr(data.skill_codes),
+          })
+        } else {
+          setProject(null)
+        }
+        setLoading(false)
+      }, () => setLoading(false))
   }, [id])
 
   if (loading) return (

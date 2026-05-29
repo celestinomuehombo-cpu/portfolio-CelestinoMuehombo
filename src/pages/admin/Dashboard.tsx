@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase'
 import {
   LayoutDashboard, User, Code2, FolderOpen,
   GraduationCap, Mail, LogOut, ChevronRight,
-  Moon, Sun, Menu, X, ExternalLink
+  Moon, Sun, Menu, X, ExternalLink, Award
 } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 
@@ -13,9 +13,10 @@ import AboutPanel from '../../components/admin/panels/AboutPanel'
 import SkillsPanel from '../../components/admin/panels/SkillsPanel'
 import ProjectsPanel from '../../components/admin/panels/ProjectsPanel'
 import CVPanel from '../../components/admin/panels/CVPanel'
+import CertificationsPanel from '../../components/admin/panels/CertificationsPanel'
 import ContactPanel from '../../components/admin/panels/ContactPanel'
 
-type Section = 'overview' | 'hero' | 'about' | 'skills' | 'projects' | 'cv' | 'contact'
+type Section = 'overview' | 'hero' | 'about' | 'skills' | 'projects' | 'cv' | 'certifications' | 'contact'
 
 const NAV_ITEMS = [
   { id: 'overview' as Section, label: 'Vue d\'ensemble', icon: LayoutDashboard },
@@ -24,15 +25,17 @@ const NAV_ITEMS = [
   { id: 'skills' as Section, label: 'Compétences', icon: Code2 },
   { id: 'projects' as Section, label: 'Projets', icon: FolderOpen },
   { id: 'cv' as Section, label: 'Parcours', icon: GraduationCap },
+  { id: 'certifications' as Section, label: 'Certifications', icon: Award },
   { id: 'contact' as Section, label: 'Contact', icon: Mail },
 ]
 
 const OVERVIEW_CARDS = [
-  { id: 'hero', label: 'Hero', icon: User, desc: 'Badge, nom, tagline, CV' },
+  { id: 'hero', label: 'Hero', icon: User, desc: 'Badge, nom, tagline, CV PDF' },
   { id: 'about', label: 'À propos', icon: User, desc: 'Photo, description, infos' },
   { id: 'skills', label: 'Compétences', icon: Code2, desc: 'ACs, projets, réflexions' },
-  { id: 'projects', label: 'Projets', icon: FolderOpen, desc: 'Tangisa et projets académiques' },
-  { id: 'cv', label: 'Parcours', icon: GraduationCap, desc: 'Expériences, formations, certifs' },
+  { id: 'projects', label: 'Projets', icon: FolderOpen, desc: 'Visibilité, médias, ACs liés' },
+  { id: 'cv', label: 'Parcours', icon: GraduationCap, desc: 'Expériences et formations' },
+  { id: 'certifications', label: 'Certifications', icon: Award, desc: 'Cisco, ANSSI et autres certifs' },
   { id: 'contact', label: 'Contact', icon: Mail, desc: 'Email, réseaux sociaux' },
 ]
 
@@ -55,6 +58,7 @@ export default function Dashboard() {
       case 'skills': return <SkillsPanel />
       case 'projects': return <ProjectsPanel />
       case 'cv': return <CVPanel />
+      case 'certifications': return <CertificationsPanel />
       case 'contact': return <ContactPanel />
       default: return (
         <div>
@@ -85,7 +89,7 @@ export default function Dashboard() {
                   {stat.value}
                 </p>
                 {i === 0 ? (
-                  <a href="https://celestinomuehombo-cpu.github.io/portfolio-celestino/"
+                  <a href="https://celestinomuehombo.netlify.app/"
                     target="_blank" rel="noopener noreferrer"
                     className="text-xs text-orange-500 hover:underline
                       flex items-center gap-1">
@@ -195,7 +199,7 @@ export default function Dashboard() {
         {/* Footer */}
         <div className="p-3 border-t border-border-light dark:border-border-dark
           space-y-0.5">
-          <a href="https://celestinomuehombo-cpu.github.io/portfolio-celestino/"
+          <a href="https://celestinomuehombo.netlify.app/"
             target="_blank" rel="noopener noreferrer"
             className="w-full flex items-center gap-3 px-3 py-2.5
               rounded-xl text-sm font-medium text-muted

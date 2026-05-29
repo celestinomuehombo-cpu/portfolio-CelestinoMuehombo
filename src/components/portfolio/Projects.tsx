@@ -24,43 +24,6 @@ interface Project {
   visible?: boolean
 }
 
-const DEFAULT_PROJECTS: Project[] = [
-  {
-    id: '1', title: 'Tangisa',
-    description: 'Plateforme marketplace éducative pour le marché angolais connectant élèves et tuteurs vérifiés. Système de vérification en 4 étapes, dashboard parental en temps réel, 2 plans d\'abonnement.',
-    tech: ['React', 'TypeScript', 'Supabase', 'Flutterwave', 'Netlify'],
-    github_url: null, demo_url: null, image_url: null, images: [], videos: [], documents: [], document_labels: [],
-    status: 'wip', display_order: 0, category: 'Entrepreneuriat', highlight: true,
-  },
-  {
-    id: '2', title: 'Portfolio Personnel',
-    description: 'Ce portfolio — conçu et développé from scratch avec React, TypeScript et Tailwind. Système de gestion de contenu via Supabase avec panneau admin.',
-    tech: ['React', 'TypeScript', 'Tailwind CSS', 'Supabase', 'Vite'],
-    github_url: 'https://github.com/celestinomuehombo-cpu', demo_url: null, image_url: null, images: [], videos: [], documents: [], document_labels: [],
-    status: 'done', display_order: 1, category: 'Web', highlight: false,
-  },
-  {
-    id: '3', title: 'Infrastructure GRE/IPsec Multi-sites',
-    description: 'Architecture réseau complète interconnectant deux sites via tunnel GRE encapsulé dans IPsec. Segmentation VLAN, pare-feux ASA, routage OSPF.',
-    tech: ['Cisco IOS', 'GRE', 'IPsec', 'OSPF', 'Packet Tracer'],
-    github_url: null, demo_url: null, image_url: null, images: [], videos: [], documents: [], document_labels: [],
-    status: 'done', display_order: 2, category: 'Réseaux', highlight: false,
-  },
-  {
-    id: '4', title: 'Chat TCP Client/Serveur',
-    description: 'Application de messagerie en temps réel utilisant des sockets TCP. Serveur multi-clients avec threading, protocole applicatif JSON.',
-    tech: ['Python 3', 'socket', 'threading', 'JSON'],
-    github_url: 'https://github.com/celestinomuehombo-cpu', demo_url: null, image_url: null, images: [], videos: [], documents: [], document_labels: [],
-    status: 'done', display_order: 3, category: 'Programmation', highlight: false,
-  },
-  {
-    id: '5', title: 'Scripts Admin Réseau',
-    description: 'Suite de scripts d\'automatisation pour backup des configs Cisco via SSH, monitoring de disponibilité avec alertes email et génération de rapports HTML.',
-    tech: ['Python 3', 'Bash', 'Paramiko', 'Netmiko', 'cron'],
-    github_url: 'https://github.com/celestinomuehombo-cpu', demo_url: null, image_url: null, images: [], videos: [], documents: [], document_labels: [],
-    status: 'done', display_order: 4, category: 'Automatisation', highlight: false,
-  },
-]
 
 const CATEGORY_COLORS: Record<string, string> = {
   'Entrepreneuriat': 'text-orange-500 bg-orange-500/10',
@@ -320,12 +283,21 @@ export default function Projects() {
     </section>
   )
 
-  const projects = (projectsData && projectsData.length > 0
-    ? projectsData
-    : (isError || projectsData !== undefined) ? DEFAULT_PROJECTS : []
-  ) as Project[]
+  // Mostra apenas dados do Supabase, sem fallback hardcoded
+  const projects = ((isError || !projectsData) ? [] : projectsData) as Project[]
 
-  const visible = projects.filter(p => p.visible !== false)
+  const visible = projects
+    .filter(p => p.visible !== false)
+    .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+
+  if (visible.length === 0) return (
+    <section id="projects" className="py-32 bg-white dark:bg-surface-dark">
+      <div className="max-w-6xl mx-auto px-16 text-center text-muted text-sm">
+        Aucun projet à afficher — ajoutez des projets depuis le panneau d'administration.
+      </div>
+    </section>
+  )
+
   const highlighted = visible.find(p => p.highlight)
   const others = visible.filter(p => !p.highlight)
 

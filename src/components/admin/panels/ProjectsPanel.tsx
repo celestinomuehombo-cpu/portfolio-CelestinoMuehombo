@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
-import { Save, Plus, Trash2, Upload, X } from 'lucide-react'
+import { Save, Plus, Trash2, Upload, X, Image, Film, FileText } from 'lucide-react'
 
 interface Project {
   id?: string
@@ -10,6 +10,10 @@ interface Project {
   github_url: string | null
   demo_url: string | null
   image_url: string | null
+  images?: string[]
+  videos?: string[]
+  documents?: string[]
+  document_labels?: string[]
   status: 'done' | 'wip'
   display_order: number
   category?: string
@@ -98,6 +102,9 @@ export default function ProjectsPanel() {
   const [saving, setSaving] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [newTech, setNewTech] = useState<Record<number, string>>({})
+  const [newVideoUrl, setNewVideoUrl] = useState<Record<number, string>>({})
+  const [newDocLabel, setNewDocLabel] = useState<Record<number, string>>({})
+  const [uploading, setUploading] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     supabase.from('projects').select('*').order('display_order')
@@ -113,9 +120,9 @@ export default function ProjectsPanel() {
     setTimeout(() => setSuccess(null), 3000)
   }
 
-  const uploadImage = async (file: File) => {
+  const uploadFile = async (file: File, folder: string) => {
     const ext = file.name.split('.').pop()
-    const path = `projects/${Date.now()}.${ext}`
+    const path = `${folder}/${Date.now()}.${ext}`
     const { error } = await supabase.storage
       .from('projects')
       .upload(path, file, { upsert: true })
@@ -150,8 +157,9 @@ export default function ProjectsPanel() {
     setProjects(prev => [...prev, {
       title: '', description: '', tech: [],
       github_url: null, demo_url: null, image_url: null,
+      images: [], videos: [], documents: [], document_labels: [],
       status: 'done', display_order: prev.length,
-      category: 'Réseaux', highlight: false
+      category: 'Réseaux', highlight: false, skill_codes: []
     }])
   }
 
@@ -201,34 +209,171 @@ export default function ProjectsPanel() {
               border border-border-light dark:border-border-dark
               rounded-2xl p-5">
 
-            {/* Image upload */}
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-20 h-14 rounded-xl overflow-hidden
-                bg-surface-light dark:bg-surface-dark
-                border border-border-light dark:border-border-dark flex-shrink-0">
-                {proj.image_url ? (
-                  <img src={proj.image_url} alt="projet"
-                    className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Upload size={16} className="text-muted" />
+            {/* ── MÉDIAS ── */}
+            <div className="mb-4 space-y-4 p-4 rounded-xl
+              bg-surface-light dark:bg-surface-dark
+              border border-border-light dark:border-border-dark">
+
+              {/* Photos */}
+              <div>
+                <p className="text-xs font-semibold text-text-light dark:text-text-dark
+                  flex items-center gap-1.5 mb-2">
+                  <Image size={13} className="text-orange-500" /> Photos
+                </p>
+                {(proj.images ?? []).length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mb-2">
+                    {(proj.images ?? []).map((img, ii) => (
+                      <div key={ii} className="relative group">
+                        <img src={img} alt={`photo ${ii + 1}`}
+                          className="w-full aspect-video object-cover rounded-lg
+                            border border-border-light dark:border-border-dark" />
+                        <button
+                          onClick={() => updateProject(index, 'images',
+                            (proj.images ?? []).filter((_, idx) => idx !== ii))}
+                          className="absolute top-1 right-1 p-1 rounded-full
+                            bg-red-500 text-white opacity-0 group-hover:opacity-100
+                            transition-opacity">
+                          <X size={10} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
+                <label className="flex items-center gap-2 cursor-pointer
+                  text-xs text-muted hover:text-orange-500 transition-colors">
+                  <span className="px-3 py-1.5 rounded-lg bg-orange-500/10
+                    text-orange-500 font-medium flex items-center gap-1.5">
+                    {uploading[index] ? (
+                      <span className="w-3 h-3 rounded-full border border-orange-500
+                        border-t-transparent animate-spin" />
+                    ) : <Upload size={12} />}
+                    Ajouter photos
+                  </span>
+                  <input type="file" accept="image/*" multiple className="hidden"
+                    onChange={async e => {
+                      const files = Array.from(e.target.files ?? [])
+                      if (!files.length) return
+                      setUploading(prev => ({ ...prev, [index]: true }))
+                      const urls = await Promise.all(files.map(f => uploadFile(f, 'images')))
+                      const valid = urls.filter(Boolean) as string[]
+                      updateProject(index, 'images', [...(proj.images ?? []), ...valid])
+                      setUploading(prev => ({ ...prev, [index]: false }))
+                    }} />
+                </label>
               </div>
-              <div className="flex-1">
-                <input type="file" accept="image/*"
-                  onChange={async e => {
-                    const file = e.target.files?.[0]
-                    if (!file) return
-                    const url = await uploadImage(file)
-                    if (url) updateProject(index, 'image_url', url)
-                  }}
-                  className="w-full text-xs text-muted
-                    file:mr-3 file:py-1.5 file:px-3 file:rounded-lg
-                    file:border-0 file:text-xs file:font-medium
-                    file:bg-orange-500/10 file:text-orange-500
-                    hover:file:bg-orange-500/20 cursor-pointer" />
-                <p className="text-xs text-muted mt-1">Image du projet</p>
+
+              {/* Vidéos */}
+              <div>
+                <p className="text-xs font-semibold text-text-light dark:text-text-dark
+                  flex items-center gap-1.5 mb-2">
+                  <Film size={13} className="text-blue-600 dark:text-blue-400" /> Vidéos
+                  <span className="text-muted font-normal">(YouTube, Vimeo ou lien direct)</span>
+                </p>
+                {(proj.videos ?? []).map((vid, vi) => (
+                  <div key={vi} className="flex items-center gap-2 mb-1.5">
+                    <input type="url" value={vid}
+                      onChange={e => {
+                        const updated = [...(proj.videos ?? [])]
+                        updated[vi] = e.target.value
+                        updateProject(index, 'videos', updated)
+                      }}
+                      placeholder="https://youtube.com/watch?v=..."
+                      className={`flex-1 ${inputClass}`} />
+                    <button
+                      onClick={() => updateProject(index, 'videos',
+                        (proj.videos ?? []).filter((_, idx) => idx !== vi))}
+                      className="p-2 text-muted hover:text-red-500 transition-colors">
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <input type="url"
+                    value={newVideoUrl[index] ?? ''}
+                    onChange={e => setNewVideoUrl(prev => ({ ...prev, [index]: e.target.value }))}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && newVideoUrl[index]?.trim()) {
+                        updateProject(index, 'videos',
+                          [...(proj.videos ?? []), newVideoUrl[index].trim()])
+                        setNewVideoUrl(prev => ({ ...prev, [index]: '' }))
+                      }
+                    }}
+                    placeholder="Coller un lien vidéo..."
+                    className={`flex-1 ${inputClass}`} />
+                  <button
+                    onClick={() => {
+                      if (!newVideoUrl[index]?.trim()) return
+                      updateProject(index, 'videos',
+                        [...(proj.videos ?? []), newVideoUrl[index].trim()])
+                      setNewVideoUrl(prev => ({ ...prev, [index]: '' }))
+                    }}
+                    className="px-3 py-2 rounded-xl bg-blue-600/10
+                      text-blue-600 dark:text-blue-400 hover:bg-blue-600/20
+                      transition-colors">
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Documents PDF */}
+              <div>
+                <p className="text-xs font-semibold text-text-light dark:text-text-dark
+                  flex items-center gap-1.5 mb-2">
+                  <FileText size={13} className="text-orange-500" /> Documents PDF
+                </p>
+                {(proj.documents ?? []).map((doc, di) => (
+                  <div key={di} className="flex items-center gap-2 mb-1.5">
+                    <a href={doc} target="_blank" rel="noopener noreferrer"
+                      className="flex-1 text-xs px-3 py-2 rounded-xl
+                        bg-blue-600/10 text-blue-600 dark:text-blue-400
+                        border border-blue-600/20 truncate hover:bg-blue-600/20
+                        transition-colors">
+                      {(proj.document_labels ?? [])[di] || `Document ${di + 1}`}
+                    </a>
+                    <button
+                      onClick={() => {
+                        updateProject(index, 'documents',
+                          (proj.documents ?? []).filter((_, idx) => idx !== di))
+                        updateProject(index, 'document_labels',
+                          (proj.document_labels ?? []).filter((_, idx) => idx !== di))
+                      }}
+                      className="p-2 text-muted hover:text-red-500 transition-colors">
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <input type="text"
+                    value={newDocLabel[index] ?? ''}
+                    onChange={e => setNewDocLabel(prev => ({ ...prev, [index]: e.target.value }))}
+                    placeholder="Nom du document (ex: Rapport PDF)"
+                    className={`flex-1 ${inputClass}`} />
+                  <label className="px-3 py-2 rounded-xl bg-orange-500/10
+                    text-orange-500 hover:bg-orange-500/20 cursor-pointer
+                    transition-colors flex items-center gap-1.5 text-xs font-medium whitespace-nowrap">
+                    {uploading[`pdf-${index}`] ? (
+                      <span className="w-3 h-3 rounded-full border border-orange-500
+                        border-t-transparent animate-spin" />
+                    ) : <Upload size={12} />}
+                    PDF
+                    <input type="file" accept=".pdf,application/pdf" className="hidden"
+                      onChange={async e => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        setUploading(prev => ({ ...prev, [`pdf-${index}`]: true }))
+                        const url = await uploadFile(file, 'docs')
+                        if (url) {
+                          updateProject(index, 'documents',
+                            [...(proj.documents ?? []), url])
+                          updateProject(index, 'document_labels',
+                            [...(proj.document_labels ?? []),
+                              newDocLabel[index]?.trim() || file.name.replace('.pdf', '')])
+                          setNewDocLabel(prev => ({ ...prev, [index]: '' }))
+                        }
+                        setUploading(prev => ({ ...prev, [`pdf-${index}`]: false }))
+                      }} />
+                  </label>
+                </div>
               </div>
             </div>
 

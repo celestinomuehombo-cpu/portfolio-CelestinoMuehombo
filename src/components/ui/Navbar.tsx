@@ -25,9 +25,14 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
 
         {/* Logo */}
-        <a href="#hero" className="font-head font-black text-xl tracking-tight
-          text-text-light dark:text-text-dark">
-          C<span className="text-orange-500">.</span>MUEHOMBO
+        <a href="#hero" aria-label="Celestino Muehombo — accueil">
+          <img
+            src={isDark ? '/logo-dark.svg' : '/logo.svg'}
+            alt="C.MUEHOMBO"
+            width={160}
+            height={32}
+            className="h-8 w-auto"
+          />
         </a>
 
         {/* Links desktop */}

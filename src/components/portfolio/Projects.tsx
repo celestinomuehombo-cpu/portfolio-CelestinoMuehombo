@@ -200,7 +200,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
           </p>
 
           {/* Technologies */}
-          {project.tech.length > 0 && (
+          {(project.tech ?? []).length > 0 && (
             <div>
               <p className="text-xs uppercase tracking-widest text-muted font-semibold mb-2
                 flex items-center gap-2">
@@ -208,7 +208,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
                 <span className="flex-1 h-px bg-border-light dark:bg-border-dark" />
               </p>
               <div className="flex flex-wrap gap-2">
-                {project.tech.map((t, i) => (
+                {(project.tech ?? []).map((t, i) => (
                   <span key={i} className="text-xs px-2.5 py-1 rounded-lg
                     bg-surface-light dark:bg-surface-dark
                     border border-border-light dark:border-border-dark
@@ -414,7 +414,7 @@ export default function Projects() {
                     {highlighted.description}
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {highlighted.tech.map((t, i) => (
+                    {(highlighted.tech ?? []).map((t, i) => (
                       <span key={i} className="text-xs px-2.5 py-1 rounded-lg
                         bg-surface-light dark:bg-surface2
                         border border-border-light dark:border-border-dark
@@ -511,7 +511,7 @@ export default function Projects() {
 
                 {/* Tech */}
                 <div className="flex flex-wrap gap-1.5 mb-3">
-                  {project.tech.slice(0, 4).map((t, i) => (
+                  {(project.tech ?? []).slice(0, 4).map((t, i) => (
                     <span key={i} className="text-xs px-2.5 py-0.5 rounded-lg
                       bg-white dark:bg-surface-dark
                       border border-border-light dark:border-border-dark
@@ -519,8 +519,8 @@ export default function Projects() {
                       {t}
                     </span>
                   ))}
-                  {project.tech.length > 4 && (
-                    <span className="text-xs text-muted px-1">+{project.tech.length - 4}</span>
+                  {(project.tech ?? []).length > 4 && (
+                    <span className="text-xs text-muted px-1">+{(project.tech ?? []).length - 4}</span>
                   )}
                 </div>
 

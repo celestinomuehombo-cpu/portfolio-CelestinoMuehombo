@@ -13,7 +13,7 @@ interface Project {
   images?: string[]
   videos?: string[]
   documents?: string[]
-  documents_labels?: string[]
+  document_labels?: string[]
   status: 'done' | 'wip'
   display_order: number
   category?: string
@@ -157,7 +157,7 @@ export default function ProjectsPanel() {
     setProjects(prev => [...prev, {
       title: '', description: '', tech: [],
       github_url: null, demo_url: null, image_url: null,
-      images: [], videos: [], documents: [], documents_labels: [],
+      images: [], videos: [], documents: [], document_labels: [],
       status: 'done', display_order: prev.length,
       category: 'Réseaux', highlight: false, skill_codes: []
     }])
@@ -209,23 +209,71 @@ export default function ProjectsPanel() {
               border border-border-light dark:border-border-dark
               rounded-2xl p-5">
 
-            {/* ── MÉDIAS ── */}
-            <div className="mb-4 space-y-4 p-4 rounded-xl
+            {/* ── LOGO ── */}
+            <div className="flex items-center gap-4 mb-4 p-4 rounded-xl
               bg-surface-light dark:bg-surface-dark
               border border-border-light dark:border-border-dark">
+              <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0
+                bg-white dark:bg-surface2
+                border border-border-light dark:border-border-dark
+                flex items-center justify-center">
+                {proj.image_url
+                  ? <img src={proj.image_url} alt="logo" className="w-full h-full object-cover" />
+                  : <Image size={22} className="text-muted" />
+                }
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-semibold text-text-light dark:text-text-dark mb-1">
+                  Logo du projet
+                </p>
+                <p className="text-xs text-muted mb-2">Image affichée sur la carte du projet</p>
+                <label className="inline-flex items-center gap-1.5 cursor-pointer
+                  px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-500
+                  text-xs font-medium hover:bg-orange-500/20 transition-colors">
+                  {uploading[`logo-${index}`]
+                    ? <span className="w-3 h-3 rounded-full border border-orange-500 border-t-transparent animate-spin" />
+                    : <Upload size={12} />}
+                  {proj.image_url ? 'Changer le logo' : 'Uploader le logo'}
+                  <input type="file" accept="image/*" className="hidden"
+                    onChange={async e => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      setUploading(prev => ({ ...prev, [`logo-${index}`]: true }))
+                      const url = await uploadFile(file, 'logos')
+                      if (url) updateProject(index, 'image_url', url)
+                      setUploading(prev => ({ ...prev, [`logo-${index}`]: false }))
+                    }} />
+                </label>
+                {proj.image_url && (
+                  <button onClick={() => updateProject(index, 'image_url', null)}
+                    className="ml-2 text-xs text-muted hover:text-red-500 transition-colors">
+                    Supprimer
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* ── MÉDIAS DE DESCRIPTION ── */}
+            <div className="mb-4 p-4 rounded-xl space-y-4
+              bg-surface-light dark:bg-surface-dark
+              border border-border-light dark:border-border-dark">
+              <p className="text-xs font-semibold text-text-light dark:text-text-dark
+                flex items-center gap-2">
+                Médias de la description
+                <span className="font-normal text-muted">— photos et vidéos affichées dans la fiche</span>
+              </p>
 
               {/* Photos */}
               <div>
-                <p className="text-xs font-semibold text-text-light dark:text-text-dark
-                  flex items-center gap-1.5 mb-2">
-                  <Image size={13} className="text-orange-500" /> Photos
+                <p className="text-xs text-muted flex items-center gap-1.5 mb-2">
+                  <Image size={12} className="text-orange-500" /> Photos
                 </p>
                 {(proj.images ?? []).length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mb-2">
                     {(proj.images ?? []).map((img, ii) => (
                       <div key={ii} className="relative group">
                         <img src={img} alt={`photo ${ii + 1}`}
-                          className="w-full aspect-videos object-cover rounded-lg
+                          className="w-full aspect-video object-cover rounded-lg
                             border border-border-light dark:border-border-dark" />
                         <button
                           onClick={() => updateProject(index, 'images',
@@ -239,35 +287,31 @@ export default function ProjectsPanel() {
                     ))}
                   </div>
                 )}
-                <label className="flex items-center gap-2 cursor-pointer
-                  text-xs text-muted hover:text-orange-500 transition-colors">
-                  <span className="px-3 py-1.5 rounded-lg bg-orange-500/10
-                    text-orange-500 font-medium flex items-center gap-1.5">
-                    {uploading[index] ? (
-                      <span className="w-3 h-3 rounded-full border border-orange-500
-                        border-t-transparent animate-spin" />
-                    ) : <Upload size={12} />}
-                    Ajouter photos
-                  </span>
+                <label className="inline-flex items-center gap-1.5 cursor-pointer
+                  px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-500
+                  text-xs font-medium hover:bg-orange-500/20 transition-colors">
+                  {uploading[`img-${index}`]
+                    ? <span className="w-3 h-3 rounded-full border border-orange-500 border-t-transparent animate-spin" />
+                    : <Upload size={12} />}
+                  Ajouter photos
                   <input type="file" accept="image/*" multiple className="hidden"
                     onChange={async e => {
                       const files = Array.from(e.target.files ?? [])
                       if (!files.length) return
-                      setUploading(prev => ({ ...prev, [index]: true }))
+                      setUploading(prev => ({ ...prev, [`img-${index}`]: true }))
                       const urls = await Promise.all(files.map(f => uploadFile(f, 'images')))
                       const valid = urls.filter(Boolean) as string[]
                       updateProject(index, 'images', [...(proj.images ?? []), ...valid])
-                      setUploading(prev => ({ ...prev, [index]: false }))
+                      setUploading(prev => ({ ...prev, [`img-${index}`]: false }))
                     }} />
                 </label>
               </div>
 
               {/* Vidéos */}
               <div>
-                <p className="text-xs font-semibold text-text-light dark:text-text-dark
-                  flex items-center gap-1.5 mb-2">
-                  <Film size={13} className="text-blue-600 dark:text-blue-400" /> Vidéos
-                  <span className="text-muted font-normal">(YouTube, Vimeo ou lien direct)</span>
+                <p className="text-xs text-muted flex items-center gap-1.5 mb-2">
+                  <Film size={12} className="text-blue-600 dark:text-blue-400" /> Vidéos
+                  <span>(YouTube, Vimeo ou lien direct)</span>
                 </p>
                 {(proj.videos ?? []).map((vid, vi) => (
                   <div key={vi} className="flex items-center gap-2 mb-1.5">
@@ -279,8 +323,7 @@ export default function ProjectsPanel() {
                       }}
                       placeholder="https://youtube.com/watch?v=..."
                       className={`flex-1 ${inputClass}`} />
-                    <button
-                      onClick={() => updateProject(index, 'videos',
+                    <button onClick={() => updateProject(index, 'videos',
                         (proj.videos ?? []).filter((_, idx) => idx !== vi))}
                       className="p-2 text-muted hover:text-red-500 transition-colors">
                       <X size={14} />
@@ -293,8 +336,7 @@ export default function ProjectsPanel() {
                     onChange={e => setNewVideoUrl(prev => ({ ...prev, [index]: e.target.value }))}
                     onKeyDown={e => {
                       if (e.key === 'Enter' && newVideoUrl[index]?.trim()) {
-                        updateProject(index, 'videos',
-                          [...(proj.videos ?? []), newVideoUrl[index].trim()])
+                        updateProject(index, 'videos', [...(proj.videos ?? []), newVideoUrl[index].trim()])
                         setNewVideoUrl(prev => ({ ...prev, [index]: '' }))
                       }
                     }}
@@ -303,77 +345,71 @@ export default function ProjectsPanel() {
                   <button
                     onClick={() => {
                       if (!newVideoUrl[index]?.trim()) return
-                      updateProject(index, 'videos',
-                        [...(proj.videos ?? []), newVideoUrl[index].trim()])
+                      updateProject(index, 'videos', [...(proj.videos ?? []), newVideoUrl[index].trim()])
                       setNewVideoUrl(prev => ({ ...prev, [index]: '' }))
                     }}
                     className="px-3 py-2 rounded-xl bg-blue-600/10
-                      text-blue-600 dark:text-blue-400 hover:bg-blue-600/20
-                      transition-colors">
+                      text-blue-600 dark:text-blue-400 hover:bg-blue-600/20 transition-colors">
                     <Plus size={16} />
                   </button>
                 </div>
               </div>
+            </div>
 
-              {/* Documents PDF */}
-              <div>
-                <p className="text-xs font-semibold text-text-light dark:text-text-dark
-                  flex items-center gap-1.5 mb-2">
-                  <FileText size={13} className="text-orange-500" /> Documents PDF
-                </p>
-                {(proj.documents ?? []).map((doc, di) => (
-                  <div key={di} className="flex items-center gap-2 mb-1.5">
-                    <a href={doc} target="_blank" rel="noopener noreferrer"
-                      className="flex-1 text-xs px-3 py-2 rounded-xl
-                        bg-blue-600/10 text-blue-600 dark:text-blue-400
-                        border border-blue-600/20 truncate hover:bg-blue-600/20
-                        transition-colors">
-                      {(proj.documents_labels ?? [])[di] || `Document ${di + 1}`}
-                    </a>
-                    <button
-                      onClick={() => {
-                        updateProject(index, 'documents',
-                          (proj.documents ?? []).filter((_, idx) => idx !== di))
-                        updateProject(index, 'documents_labels',
-                          (proj.documents_labels ?? []).filter((_, idx) => idx !== di))
-                      }}
-                      className="p-2 text-muted hover:text-red-500 transition-colors">
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-                <div className="flex gap-2">
-                  <input type="text"
-                    value={newDocLabel[index] ?? ''}
-                    onChange={e => setNewDocLabel(prev => ({ ...prev, [index]: e.target.value }))}
-                    placeholder="Nom du documents (ex: Rapport PDF)"
-                    className={`flex-1 ${inputClass}`} />
-                  <label className="px-3 py-2 rounded-xl bg-orange-500/10
-                    text-orange-500 hover:bg-orange-500/20 cursor-pointer
-                    transition-colors flex items-center gap-1.5 text-xs font-medium whitespace-nowrap">
-                    {uploading[`pdf-${index}`] ? (
-                      <span className="w-3 h-3 rounded-full border border-orange-500
-                        border-t-transparent animate-spin" />
-                    ) : <Upload size={12} />}
-                    PDF
-                    <input type="file" accept=".pdf,application/pdf" className="hidden"
-                      onChange={async e => {
-                        const file = e.target.files?.[0]
-                        if (!file) return
-                        setUploading(prev => ({ ...prev, [`pdf-${index}`]: true }))
-                        const url = await uploadFile(file, 'docs')
-                        if (url) {
-                          updateProject(index, 'documents',
-                            [...(proj.documents ?? []), url])
-                          updateProject(index, 'documents_labels',
-                            [...(proj.documents_labels ?? []),
-                              newDocLabel[index]?.trim() || file.name.replace('.pdf', '')])
-                          setNewDocLabel(prev => ({ ...prev, [index]: '' }))
-                        }
-                        setUploading(prev => ({ ...prev, [`pdf-${index}`]: false }))
-                      }} />
-                  </label>
+            {/* ── DOCUMENTS PDF ── */}
+            <div className="mb-4 p-4 rounded-xl
+              bg-surface-light dark:bg-surface-dark
+              border border-border-light dark:border-border-dark">
+              <p className="text-xs font-semibold text-text-light dark:text-text-dark
+                flex items-center gap-1.5 mb-3">
+                <FileText size={13} className="text-orange-500" /> Documents PDF
+              </p>
+              {(proj.documents ?? []).map((doc, di) => (
+                <div key={di} className="flex items-center gap-2 mb-1.5">
+                  <a href={doc} target="_blank" rel="noopener noreferrer"
+                    className="flex-1 text-xs px-3 py-2 rounded-xl
+                      bg-blue-600/10 text-blue-600 dark:text-blue-400
+                      border border-blue-600/20 truncate hover:bg-blue-600/20 transition-colors">
+                    {(proj.document_labels ?? [])[di] || `Document ${di + 1}`}
+                  </a>
+                  <button
+                    onClick={() => {
+                      updateProject(index, 'documents', (proj.documents ?? []).filter((_, idx) => idx !== di))
+                      updateProject(index, 'document_labels', (proj.document_labels ?? []).filter((_, idx) => idx !== di))
+                    }}
+                    className="p-2 text-muted hover:text-red-500 transition-colors">
+                    <X size={14} />
+                  </button>
                 </div>
+              ))}
+              <div className="flex gap-2">
+                <input type="text"
+                  value={newDocLabel[index] ?? ''}
+                  onChange={e => setNewDocLabel(prev => ({ ...prev, [index]: e.target.value }))}
+                  placeholder="Nom du document (ex: Rapport PDF)"
+                  className={`flex-1 ${inputClass}`} />
+                <label className="px-3 py-2 rounded-xl bg-orange-500/10 text-orange-500
+                  hover:bg-orange-500/20 cursor-pointer transition-colors
+                  flex items-center gap-1.5 text-xs font-medium whitespace-nowrap">
+                  {uploading[`pdf-${index}`]
+                    ? <span className="w-3 h-3 rounded-full border border-orange-500 border-t-transparent animate-spin" />
+                    : <Upload size={12} />}
+                  PDF
+                  <input type="file" accept=".pdf,application/pdf" className="hidden"
+                    onChange={async e => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      setUploading(prev => ({ ...prev, [`pdf-${index}`]: true }))
+                      const url = await uploadFile(file, 'docs')
+                      if (url) {
+                        updateProject(index, 'documents', [...(proj.documents ?? []), url])
+                        updateProject(index, 'document_labels', [...(proj.document_labels ?? []),
+                          newDocLabel[index]?.trim() || file.name.replace('.pdf', '')])
+                        setNewDocLabel(prev => ({ ...prev, [index]: '' }))
+                      }
+                      setUploading(prev => ({ ...prev, [`pdf-${index}`]: false }))
+                    }} />
+                </label>
               </div>
             </div>
 

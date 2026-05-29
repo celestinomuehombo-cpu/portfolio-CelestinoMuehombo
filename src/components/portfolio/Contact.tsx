@@ -40,11 +40,10 @@ export default function Contact() {
     setStatus('sending')
     try {
       await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-        from_name: form.name,
-        from_email: form.email,
+        name: form.name,
+        email: form.email,
         subject: form.subject || 'Contact depuis le portfolio',
         message: form.message,
-        to_email: data.email,
       }, EMAILJS_KEY)
       setStatus('success')
       setForm({ name: '', email: '', subject: '', message: '' })

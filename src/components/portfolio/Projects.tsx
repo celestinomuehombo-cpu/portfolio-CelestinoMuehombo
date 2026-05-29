@@ -9,9 +9,10 @@ interface Project {
   github_url: string | null
   demo_url: string | null
   image_url: string | null
-  images: string[]
-  documents: string[]
-  document_labels: string[]
+  images?: string[]
+  video?: string[]
+  documents?: string[]
+  document_labels?: string[]
   status: string
   display_order: number
   category: string
@@ -204,9 +205,9 @@ export default function Projects() {
                   </div>
 
                   {/* Documents */}
-                  {(highlighted.documents ?? []).length > 0 && (
+                  {(highlighted.documents?? []).length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {(highlighted.documents ?? []).map((doc, i) => (
+                      {(highlighted.documents?? []).map((doc, i) => (
                         <a key={i} href={doc} target="_blank" rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 text-xs
                             px-3 py-1.5 rounded-lg
@@ -312,9 +313,9 @@ export default function Projects() {
               </p>
 
               {/* Documents */}
-              {(project.documents ?? []).length > 0 && (
+              {(project.documents?? []).length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {(project.documents ?? []).map((doc, i) => (
+                  {(project.documents?? []).map((doc, i) => (
                     <a key={i} href={doc} target="_blank" rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs
                         px-2.5 py-1 rounded-lg

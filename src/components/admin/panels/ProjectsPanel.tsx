@@ -13,7 +13,7 @@ interface Project {
   images?: string[]
   videos?: string[]
   documents?: string[]
-  document_labels?: string[]
+  documents_labels?: string[]
   status: 'done' | 'wip'
   display_order: number
   category?: string
@@ -157,7 +157,7 @@ export default function ProjectsPanel() {
     setProjects(prev => [...prev, {
       title: '', description: '', tech: [],
       github_url: null, demo_url: null, image_url: null,
-      images: [], videos: [], documents: [], document_labels: [],
+      images: [], videos: [], documents: [], documents_labels: [],
       status: 'done', display_order: prev.length,
       category: 'Réseaux', highlight: false, skill_codes: []
     }])
@@ -225,7 +225,7 @@ export default function ProjectsPanel() {
                     {(proj.images ?? []).map((img, ii) => (
                       <div key={ii} className="relative group">
                         <img src={img} alt={`photo ${ii + 1}`}
-                          className="w-full aspect-video object-cover rounded-lg
+                          className="w-full aspect-videos object-cover rounded-lg
                             border border-border-light dark:border-border-dark" />
                         <button
                           onClick={() => updateProject(index, 'images',
@@ -328,14 +328,14 @@ export default function ProjectsPanel() {
                         bg-blue-600/10 text-blue-600 dark:text-blue-400
                         border border-blue-600/20 truncate hover:bg-blue-600/20
                         transition-colors">
-                      {(proj.document_labels ?? [])[di] || `Document ${di + 1}`}
+                      {(proj.documents_labels ?? [])[di] || `Document ${di + 1}`}
                     </a>
                     <button
                       onClick={() => {
                         updateProject(index, 'documents',
                           (proj.documents ?? []).filter((_, idx) => idx !== di))
-                        updateProject(index, 'document_labels',
-                          (proj.document_labels ?? []).filter((_, idx) => idx !== di))
+                        updateProject(index, 'documents_labels',
+                          (proj.documents_labels ?? []).filter((_, idx) => idx !== di))
                       }}
                       className="p-2 text-muted hover:text-red-500 transition-colors">
                       <X size={14} />
@@ -346,7 +346,7 @@ export default function ProjectsPanel() {
                   <input type="text"
                     value={newDocLabel[index] ?? ''}
                     onChange={e => setNewDocLabel(prev => ({ ...prev, [index]: e.target.value }))}
-                    placeholder="Nom du document (ex: Rapport PDF)"
+                    placeholder="Nom du documents (ex: Rapport PDF)"
                     className={`flex-1 ${inputClass}`} />
                   <label className="px-3 py-2 rounded-xl bg-orange-500/10
                     text-orange-500 hover:bg-orange-500/20 cursor-pointer
@@ -365,8 +365,8 @@ export default function ProjectsPanel() {
                         if (url) {
                           updateProject(index, 'documents',
                             [...(proj.documents ?? []), url])
-                          updateProject(index, 'document_labels',
-                            [...(proj.document_labels ?? []),
+                          updateProject(index, 'documents_labels',
+                            [...(proj.documents_labels ?? []),
                               newDocLabel[index]?.trim() || file.name.replace('.pdf', '')])
                           setNewDocLabel(prev => ({ ...prev, [index]: '' }))
                         }

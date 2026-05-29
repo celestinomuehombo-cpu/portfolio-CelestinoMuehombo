@@ -119,26 +119,22 @@ export default function Hero() {
             <div className="w-1 self-stretch rounded-full bg-orange-500
               flex-shrink-0 mt-1" />
             <div className="flex-1">
-              <p className="text-lg md:text-xl font-light text-muted max-w-md
+              <p className="text-lg md:text-xl font-light text-muted max-w-xl
                 leading-relaxed">
-                {hero?.tagline ? hero.tagline : (
+                {hero?.tagline ?? (
                   <>
                     Soyez bien venu sur mon portfolio.{' '}
                     <strong className="text-text-light dark:text-text-dark font-medium">
                       Découvrez mon parcours, mes projets
-                    </strong>
-                    {' '}et ce que je peux apporter à votre équipe.
+                    </strong>{' '}
+                    et ce que je peux apporter à votre équipe.
                   </>
                 )}
               </p>
-
-              {/* Mini tech icons inline */}
               <div className="flex items-center gap-4 mt-4">
                 <span className="text-xs font-medium text-orange-500">Réseaux</span>
                 <div className="w-px h-3 bg-border-light dark:bg-border-dark" />
-                <span className="text-xs font-medium text-blue-700 dark:text-blue-400">
-                  Télécommunications
-                </span>
+                <span className="text-xs font-medium text-blue-700 dark:text-blue-400">Télécommunications</span>
                 <div className="w-px h-3 bg-border-light dark:bg-border-dark" />
                 <span className="text-xs font-medium text-orange-500">Cybersécurité</span>
               </div>

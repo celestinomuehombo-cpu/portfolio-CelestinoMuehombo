@@ -6,17 +6,18 @@ import Projects from '../components/portfolio/Projects'
 import CV from '../components/portfolio/CV'
 import Contact from '../components/portfolio/Contact'
 import Footer from '../components/ui/Footer'
+import AnimatedSection from '../components/ui/AnimatedSection'
 
 export default function Portfolio() {
   return (
     <div className="bg-surface-light dark:bg-surface-dark min-h-screen">
       <Navbar />
       <Hero />
-      <About />
-      <Skills />
-      <Projects />
-      <CV />
-      <Contact />
+      <AnimatedSection><About /></AnimatedSection>
+      <AnimatedSection><Skills /></AnimatedSection>
+      <AnimatedSection><Projects /></AnimatedSection>
+      <AnimatedSection><CV /></AnimatedSection>
+      <AnimatedSection><Contact /></AnimatedSection>
       <Footer />
     </div>
   )

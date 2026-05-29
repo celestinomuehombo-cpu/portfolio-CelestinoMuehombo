@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { useSkills } from '../../hooks/useSupabase'
-import { CheckCircle, Clock, Circle, X, ChevronRight } from 'lucide-react'
+import { CheckCircle, Clock, Circle, X, ChevronRight, Server, GitBranch, Code2, Shield, Eye } from 'lucide-react'
 
 type Domain = 'administrer' | 'connecter' | 'programmer' | 'securiser' | 'surveiller'
 
 const DOMAINS = [
-  { id: 'administrer' as Domain, icon: '⚙️', label: 'Administrer', color: 'orange' },
-  { id: 'connecter' as Domain, icon: '🔗', label: 'Connecter', color: 'blue' },
-  { id: 'programmer' as Domain, icon: '💻', label: 'Programmer', color: 'orange' },
-  { id: 'securiser' as Domain, icon: '🛡️', label: 'Sécuriser', color: 'blue' },
-  { id: 'surveiller' as Domain, icon: '📡', label: 'Surveiller', color: 'orange' },
+  { id: 'administrer' as Domain, Icon: Server, label: 'Administrer', color: 'orange' },
+  { id: 'connecter' as Domain, Icon: GitBranch, label: 'Connecter', color: 'blue' },
+  { id: 'programmer' as Domain, Icon: Code2, label: 'Programmer', color: 'orange' },
+  { id: 'securiser' as Domain, Icon: Shield, label: 'Sécuriser', color: 'blue' },
+  { id: 'surveiller' as Domain, Icon: Eye, label: 'Surveiller', color: 'orange' },
 ]
 
 const DEFAULT_SKILLS = [
@@ -88,19 +88,22 @@ export default function Skills() {
         </div>
 
         {/* Domain tabs */}
-        <div className="flex flex-wrap gap-2 mb-10">
+        <div className="flex flex-wrap gap-1 mb-10 p-1
+          bg-white dark:bg-surface2
+          border border-border-light dark:border-border-dark
+          rounded-2xl w-fit">
           {DOMAINS.map(domain => (
             <button key={domain.id}
               onClick={() => { setActiveDomain(domain.id); setSelectedSkill(null) }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl
                 text-sm font-medium transition-all duration-200
                 ${activeDomain === domain.id
                   ? domain.color === 'orange'
                     ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25'
                     : 'bg-blue-700 text-white shadow-lg shadow-blue-700/25'
-                  : 'bg-white dark:bg-surface2 border border-border-light dark:border-border-dark text-muted hover:text-text-light dark:hover:text-text-dark'
+                  : 'text-muted hover:text-text-light dark:hover:text-text-dark'
                 }`}>
-              <span>{domain.icon}</span>
+              <domain.Icon size={14} />
               {domain.label}
               <span className={`text-xs px-1.5 py-0.5 rounded-full
                 ${activeDomain === domain.id
@@ -123,9 +126,9 @@ export default function Skills() {
                 onClick={() => setSelectedSkill(skill)}
                 className="text-left bg-white dark:bg-surface2
                   border border-border-light dark:border-border-dark
-                  rounded-2xl p-5 group
-                  hover:border-orange-500/40 dark:hover:border-orange-500/40
-                  hover:-translate-y-1 hover:shadow-lg hover:shadow-orange-500/5
+                  rounded-2xl p-6 group
+                  hover:border-orange-500/30 dark:hover:border-orange-500/30
+                  hover:-translate-y-1 hover:shadow-lg hover:shadow-orange-500/10
                   transition-all duration-200">
 
                 {/* Header */}
@@ -163,10 +166,10 @@ export default function Skills() {
                 {/* Tech tags */}
                 <div className="flex flex-wrap gap-1.5 mb-4">
                   {(skill.project_tech ?? []).slice(0, 3).map((t, i) => (
-                    <span key={i} className="text-xs px-2 py-0.5 rounded-lg
+                    <span key={i} className="text-xs px-2.5 py-1 rounded-lg
                       bg-surface-light dark:bg-surface-dark
                       border border-border-light dark:border-border-dark
-                      text-muted font-medium">
+                      text-text-light dark:text-text-dark font-medium">
                       {t}
                     </span>
                   ))}

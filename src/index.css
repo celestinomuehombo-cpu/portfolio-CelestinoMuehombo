@@ -4,6 +4,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Scroll-triggered fade-up */
+.section-hidden {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.section-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

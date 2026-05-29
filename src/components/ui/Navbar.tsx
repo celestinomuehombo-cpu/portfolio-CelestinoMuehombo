@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Moon, Sun, Menu, X, Lock } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
+import { useActiveSection } from '../../hooks/useActiveSection'
 
 export default function Navbar() {
   const { isDark, toggleTheme } = useTheme()
   const [menuOpen, setMenuOpen] = useState(false)
+  const activeSection = useActiveSection(['hero', 'about', 'skills', 'projects', 'cv', 'contact'])
 
   const links = [
     { label: 'À propos', href: '#about' },
@@ -30,16 +32,21 @@ export default function Navbar() {
 
         {/* Links desktop */}
         <ul className="hidden md:flex items-center gap-8">
-          {links.map(link => (
-            <li key={link.href}>
-              <a href={link.href}
-                className="text-sm font-medium text-muted
-                  hover:text-orange-500 dark:hover:text-orange-400
-                  transition-colors duration-200">
-                {link.label}
-              </a>
-            </li>
-          ))}
+          {links.map(link => {
+            const isActive = activeSection === link.href.slice(1)
+            return (
+              <li key={link.href}>
+                <a href={link.href}
+                  className={`text-sm font-medium transition-colors duration-200 ${
+                    isActive
+                      ? 'text-orange-500 dark:text-orange-400'
+                      : 'text-muted hover:text-orange-500 dark:hover:text-orange-400'
+                  }`}>
+                  {link.label}
+                </a>
+              </li>
+            )
+          })}
         </ul>
 
         {/* Botões direita */}
@@ -80,17 +87,22 @@ export default function Navbar() {
         <div className="md:hidden border-t border-border-light dark:border-border-dark
           bg-surface-light dark:bg-surface-dark px-6 py-4">
           <ul className="flex flex-col gap-4">
-            {links.map(link => (
-              <li key={link.href}>
-                <a href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="text-base font-medium text-muted
-                    hover:text-orange-500 dark:hover:text-orange-400
-                    transition-colors duration-200">
-                  {link.label}
-                </a>
-              </li>
-            ))}
+            {links.map(link => {
+              const isActive = activeSection === link.href.slice(1)
+              return (
+                <li key={link.href}>
+                  <a href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`text-base font-medium transition-colors duration-200 ${
+                      isActive
+                        ? 'text-orange-500 dark:text-orange-400'
+                        : 'text-muted hover:text-orange-500 dark:hover:text-orange-400'
+                    }`}>
+                    {link.label}
+                  </a>
+                </li>
+              )
+            })}
           </ul>
         </div>
       )}

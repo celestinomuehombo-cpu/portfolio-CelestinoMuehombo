@@ -26,6 +26,7 @@ export default {
           light: '#f9f9fb',
           dark: '#0a0a0f',
         },
+        surface2: '#18181f',
         text: {
           light: '#0f0f14',
           dark: '#f0f0f5',

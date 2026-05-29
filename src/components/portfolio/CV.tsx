@@ -30,90 +30,59 @@ const LogoBadge = ({ name, logoUrl, colorIndex = 0 }: {
   </div>
 )
 
+interface Experience {
+  id: string; period: string; title: string; company: string
+  description: string; display_order: number; logo_url: string | null
+}
+interface Education {
+  id: string; period: string; title: string; institution: string
+  description: string; display_order: number; logo_url: string | null
+}
+interface Certification {
+  id: string; year: string; title: string; issuer: string
+  description: string; display_order: number; logo_url: string | null
+}
+
+const DEFAULT_EXPERIENCES: Experience[] = [
+  { id: '1', period: 'Avril — Mai 2026', title: 'Stagiaire Technicien Réseaux & Systèmes',
+    company: 'Fédération ADMR du Pas-de-Calais',
+    description: 'Déploiement automatisé de 22+ postes Windows 11 Pro via infrastructure MDT/WDS (PXE BIOS/UEFI) sur Windows Server 2022, avec scripts Batch de personnalisation par adresse MAC. Configuration et sécurisation d\'une infrastructure réseau multi-sites réelle : pare-feu pfSense Netgate 2100, VPN IPsec AES-256-GCM, switch HPE Aruba Instant On 1830, points d\'accès AP22, pfBlockerNG (16 992 IP + 83 328 domaines bloqués) et Suricata IDS/IPS (réduction de 1 428 989 alertes à 12 après calibration). Configuration de la téléphonie IP 3CX — terminaux Fanvil X4U-V2, SBC, groupe d\'appels et règles de traitement des appels.',
+    display_order: 0, logo_url: null },
+  { id: '2', period: '2019 — 2023', title: 'Tuteur particulier',
+    company: 'À domicile — Angola',
+    description: 'Tutorat d\'élèves en difficulté académique en Mathématiques, Physique, Chimie et Biologie.',
+    display_order: 1, logo_url: null },
+]
+
+const DEFAULT_EDUCATIONS: Education[] = [
+  { id: '1', period: '2023 — présent', title: 'BUT Réseaux & Télécommunications — Parcours Cybersécurité',
+    institution: 'IUT de Béthune — Université d\'Artois',
+    description: 'Formation approfondie en architecture réseau, sécurité informatique, administration systèmes et développement. Groupe A1.',
+    display_order: 0, logo_url: null },
+  { id: '2', period: 'Février — Août 2023', title: 'Formation Français Langue Étrangère',
+    institution: 'IUT de Longwy — France',
+    description: 'Formation intensive en français académique et professionnel pour étudiants étrangers.',
+    display_order: 1, logo_url: null },
+  { id: '3', period: '2019 — 2022', title: 'Baccalauréat — Sciences Physiques et Biologiques',
+    institution: 'Lycée Eiffel d\'Ondjiva — Angola',
+    description: 'Spécialité en sciences physiques et biologiques.',
+    display_order: 2, logo_url: null },
+]
+
+const DEFAULT_CERTIFICATIONS: Certification[] = [
+  { id: '1', year: '2026', title: 'Ethical Hacker', issuer: 'Cisco',
+    description: 'Certification validant les compétences en cybersécurité offensive et défensive.',
+    display_order: 0, logo_url: null },
+  { id: '2', year: '2023', title: 'Hygiène Informatique', issuer: 'ANSSI',
+    description: 'Maîtrise des bonnes pratiques de sécurité informatique et de l\'hygiène numérique.',
+    display_order: 1, logo_url: null },
+]
+
 export default function CV() {
   const [activeTab, setActiveTab] = useState<TabType>('experience')
-  const { data: experiences } = useExperiences()
-  const { data: educations } = useEducations()
-  const { data: certifications } = useCertifications()
-
-  const defaultExperiences = [
-    {
-      id: '1',
-      period: 'Avril — Mai 2026',
-      title: 'Stagiaire Technicien Réseaux & Systèmes',
-      company: 'Fédération ADMR du Pas-de-Calais',
-      description: 'Déploiement automatisé de 22+ postes Windows 11 Pro via infrastructure MDT/WDS (PXE BIOS/UEFI) sur Windows Server 2022, avec scripts Batch de personnalisation par adresse MAC. Configuration et sécurisation d\'une infrastructure réseau multi-sites réelle : pare-feu pfSense Netgate 2100, VPN IPsec AES-256-GCM, switch HPE Aruba Instant On 1830, points d\'accès AP22, pfBlockerNG (16 992 IP + 83 328 domaines bloqués) et Suricata IDS/IPS (réduction de 1 428 989 alertes à 12 après calibration). Configuration de la téléphonie IP 3CX — terminaux Fanvil X4U-V2, SBC, groupe d\'appels et règles de traitement des appels.',
-      display_order: 0,
-      logo_url: null,
-      logo: { initials: 'ADMR', color: '#e84040' },
-    },
-    {
-      id: '2',
-      period: '2019 — 2023',
-      title: 'Tuteur particulier',
-      company: 'À domicile — Angola',
-      description: 'Tutorat d\'élèves en difficulté académique en Mathématiques, Physique, Chimie et Biologie.',
-      display_order: 1,
-      logo_url: null,
-      logo: { initials: 'TUT', color: '#f97316' },
-    },
-  ]
-
-  const defaultEducations = [
-    {
-      id: '1',
-      period: '2023 — présent',
-      title: 'BUT Réseaux & Télécommunications — Parcours Cybersécurité',
-      institution: 'IUT de Béthune — Université d\'Artois',
-      description: 'Formation approfondie en architecture réseau, sécurité informatique, administration systèmes et développement. Groupe A1.',
-      display_order: 0,
-      logo_url: null,
-      logo: { initials: 'IUT', color: '#1d4ed8' },
-    },
-    {
-      id: '2',
-      period: 'Février — Août 2023',
-      title: 'Formation Français Langue Étrangère',
-      institution: 'IUT de Longwy — France',
-      description: 'Formation intensive en français académique et professionnel pour étudiants étrangers.',
-      display_order: 1,
-      logo_url: null,
-      logo: { initials: 'FLE', color: '#1d4ed8' },
-    },
-    {
-      id: '3',
-      period: '2019 — 2022',
-      title: 'Baccalauréat — Sciences Physiques et Biologiques',
-      institution: 'Lycée Eiffel d\'Ondjiva — Angola',
-      description: 'Spécialité en sciences physiques et biologiques.',
-      display_order: 2,
-      logo_url: null,
-      logo: { initials: 'LYC', color: '#0f172a' },
-    },
-  ]
-
-  const defaultCertifications = [
-    {
-      id: '1',
-      year: '2026',
-      title: 'Ethical Hacker',
-      issuer: 'Cisco',
-      description: 'Certification validant les compétences en cybersécurité offensive et défensive.',
-      display_order: 0,
-      logo_url: null,
-      logo: { initials: 'CSC', color: '#049fd9' },
-    },
-    {
-      id: '2',
-      year: '2023',
-      title: 'Hygiène Informatique',
-      issuer: 'ANSSI',
-      description: 'Maîtrise des bonnes pratiques de sécurité informatique et de l\'hygiène numérique.',
-      display_order: 1,
-      logo_url: null,
-      logo: { initials: 'ANSSI', color: '#003189' },
-    },
-  ]
+  const { data: experiences, isLoading: loadExp } = useExperiences()
+  const { data: educations, isLoading: loadEdu } = useEducations()
+  const { data: certifications, isLoading: loadCert } = useCertifications()
 
   const tabs = [
     { id: 'experience' as TabType, label: 'Expériences', icon: Briefcase },
@@ -121,9 +90,9 @@ export default function CV() {
     { id: 'certifications' as TabType, label: 'Certifications', icon: Award },
   ]
 
-  const expData = (experiences && experiences.length > 0 ? experiences : defaultExperiences) as typeof defaultExperiences
-  const eduData = (educations && educations.length > 0 ? educations : defaultEducations) as typeof defaultEducations
-  const certData = (certifications && certifications.length > 0 ? certifications : defaultCertifications) as typeof defaultCertifications
+  const expData: Experience[]  = (!loadExp  && experiences  && experiences.length  > 0 ? experiences  : loadExp  ? [] : DEFAULT_EXPERIENCES)  as Experience[]
+  const eduData: Education[]   = (!loadEdu  && educations   && educations.length   > 0 ? educations   : loadEdu  ? [] : DEFAULT_EDUCATIONS)   as Education[]
+  const certData: Certification[] = (!loadCert && certifications && certifications.length > 0 ? certifications : loadCert ? [] : DEFAULT_CERTIFICATIONS) as Certification[]
 
   return (
     <section id="cv" className="py-32 bg-surface-light dark:bg-surface-dark">

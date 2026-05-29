@@ -34,6 +34,41 @@ interface Certification {
 
 type TabType = 'experience' | 'education' | 'certifications'
 
+const DEFAULT_EXPERIENCES: Experience[] = [
+  { period: 'Avril — Mai 2026', title: 'Stagiaire Technicien Réseaux & Systèmes',
+    company: 'Fédération ADMR du Pas-de-Calais',
+    description: 'Déploiement automatisé de 22+ postes Windows 11 Pro via infrastructure MDT/WDS (PXE BIOS/UEFI) sur Windows Server 2022, avec scripts Batch de personnalisation par adresse MAC. Configuration et sécurisation d\'une infrastructure réseau multi-sites réelle : pare-feu pfSense Netgate 2100, VPN IPsec AES-256-GCM, switch HPE Aruba Instant On 1830, points d\'accès AP22, pfBlockerNG (16 992 IP + 83 328 domaines bloqués) et Suricata IDS/IPS. Configuration de la téléphonie IP 3CX — terminaux Fanvil X4U-V2, SBC, groupe d\'appels.',
+    display_order: 0, logo_url: null },
+  { period: '2019 — 2023', title: 'Tuteur particulier',
+    company: 'À domicile — Angola',
+    description: 'Tutorat d\'élèves en difficulté académique en Mathématiques, Physique, Chimie et Biologie.',
+    display_order: 1, logo_url: null },
+]
+
+const DEFAULT_EDUCATIONS: Education[] = [
+  { period: '2023 — présent', title: 'BUT Réseaux & Télécommunications — Parcours Cybersécurité',
+    institution: 'IUT de Béthune — Université d\'Artois',
+    description: 'Formation approfondie en architecture réseau, sécurité informatique, administration systèmes et développement. Groupe A1.',
+    display_order: 0, logo_url: null },
+  { period: 'Février — Août 2023', title: 'Formation Français Langue Étrangère',
+    institution: 'IUT de Longwy — France',
+    description: 'Formation intensive en français académique et professionnel pour étudiants étrangers.',
+    display_order: 1, logo_url: null },
+  { period: '2019 — 2022', title: 'Baccalauréat — Sciences Physiques et Biologiques',
+    institution: 'Lycée Eiffel d\'Ondjiva — Angola',
+    description: 'Spécialité en sciences physiques et biologiques.',
+    display_order: 2, logo_url: null },
+]
+
+const DEFAULT_CERTIFICATIONS: Certification[] = [
+  { year: '2026', title: 'Ethical Hacker', issuer: 'Cisco',
+    description: 'Certification validant les compétences en cybersécurité offensive et défensive.',
+    display_order: 0, logo_url: null },
+  { year: '2023', title: 'Hygiène Informatique', issuer: 'ANSSI',
+    description: 'Maîtrise des bonnes pratiques de sécurité informatique et de l\'hygiène numérique.',
+    display_order: 1, logo_url: null },
+]
+
 export default function CVPanel() {
   const [activeTab, setActiveTab] = useState<TabType>('experience')
   const [experiences, setExperiences] = useState<Experience[]>([])
@@ -49,9 +84,9 @@ export default function CVPanel() {
       supabase.from('educations').select('*').order('display_order'),
       supabase.from('certifications').select('*').order('display_order'),
     ]).then(([exp, edu, cert]) => {
-      if (exp.data) setExperiences(exp.data)
-      if (edu.data) setEducations(edu.data)
-      if (cert.data) setCertifications(cert.data)
+      setExperiences(exp.data && exp.data.length > 0 ? exp.data : DEFAULT_EXPERIENCES)
+      setEducations(edu.data && edu.data.length > 0 ? edu.data : DEFAULT_EDUCATIONS)
+      setCertifications(cert.data && cert.data.length > 0 ? cert.data : DEFAULT_CERTIFICATIONS)
       setLoading(false)
     })
   }, [])

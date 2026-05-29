@@ -101,6 +101,7 @@ export default function ProjectsPanel() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [newTech, setNewTech] = useState<Record<number, string>>({})
   const [newVideoUrl, setNewVideoUrl] = useState<Record<number, string>>({})
   const [newDocLabel, setNewDocLabel] = useState<Record<number, string>>({})
@@ -137,11 +138,14 @@ export default function ProjectsPanel() {
 
   const saveProject = async (proj: Project, index: number) => {
     setSaving(proj.id ?? 'new')
+    setError(null)
     const payload = { ...proj }
     if (proj.id) {
-      await supabase.from('projects').update(payload).eq('id', proj.id)
+      const { error: err } = await supabase.from('projects').update(payload).eq('id', proj.id)
+      if (err) { setError(`Erreur: ${err.message}`); setSaving(null); return }
     } else {
-      const { data } = await supabase.from('projects').insert(payload).select().single()
+      const { data, error: err } = await supabase.from('projects').insert(payload).select().single()
+      if (err) { setError(`Erreur: ${err.message}`); setSaving(null); return }
       if (data) setProjects(prev => prev.map((p, i) => i === index ? data : p))
     }
     setSaving(null)
@@ -584,7 +588,10 @@ export default function ProjectsPanel() {
               </button>
               <div className="flex items-center gap-3">
                 {success === (proj.id ?? `new-${index}`) && (
-                  <span className="text-xs text-green-500">✓ Enregistré</span>
+                  <span className="text-xs text-green-500 font-medium">✓ Enregistré</span>
+                )}
+                {error && saving === null && (
+                  <span className="text-xs text-red-500 font-medium">{error}</span>
                 )}
                 {proj.id && (
                   <button onClick={() => deleteProject(proj.id!)}

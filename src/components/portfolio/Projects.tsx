@@ -310,6 +310,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
 
 export default function Projects() {
   const { data: projectsData, isLoading, isError } = useProjects()
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   if (isLoading) return (
     <section id="projects" className="py-32 bg-white dark:bg-surface-dark">
@@ -323,8 +324,6 @@ export default function Projects() {
     ? projectsData
     : (isError || projectsData !== undefined) ? DEFAULT_PROJECTS : []
   ) as Project[]
-
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   const visible = projects.filter(p => p.visible !== false)
   const highlighted = visible.find(p => p.highlight)

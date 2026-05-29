@@ -1,6 +1,7 @@
 import { useExperiences, useEducations, useCertifications } from '../../hooks/useSupabase'
 import { useState } from 'react'
 import { Briefcase, GraduationCap, Award } from 'lucide-react'
+import SectionSkeleton from '../ui/SectionSkeleton'
 
 type TabType = 'experience' | 'education' | 'certifications'
 
@@ -32,15 +33,15 @@ const LogoBadge = ({ name, logoUrl, colorIndex = 0 }: {
 
 interface Experience {
   id: string; period: string; title: string; company: string
-  description: string; display_order: number; logo_url: string | null
+  description: string; display_order: number; logo_url: string | null; visible?: boolean
 }
 interface Education {
   id: string; period: string; title: string; institution: string
-  description: string; display_order: number; logo_url: string | null
+  description: string; display_order: number; logo_url: string | null; visible?: boolean
 }
 interface Certification {
   id: string; year: string; title: string; issuer: string
-  description: string; display_order: number; logo_url: string | null
+  description: string; display_order: number; logo_url: string | null; visible?: boolean
 }
 
 const DEFAULT_EXPERIENCES: Experience[] = [
@@ -90,9 +91,17 @@ export default function CV() {
     { id: 'certifications' as TabType, label: 'Certifications', icon: Award },
   ]
 
-  const expData: Experience[]  = (!loadExp  && experiences  && experiences.length  > 0 ? experiences  : loadExp  ? [] : DEFAULT_EXPERIENCES)  as Experience[]
-  const eduData: Education[]   = (!loadEdu  && educations   && educations.length   > 0 ? educations   : loadEdu  ? [] : DEFAULT_EDUCATIONS)   as Education[]
-  const certData: Certification[] = (!loadCert && certifications && certifications.length > 0 ? certifications : loadCert ? [] : DEFAULT_CERTIFICATIONS) as Certification[]
+  if (loadExp && loadEdu && loadCert) return (
+    <section id="cv" className="py-32 bg-surface-light dark:bg-surface-dark">
+      <div className="max-w-6xl mx-auto px-16">
+        <SectionSkeleton lines={2} />
+      </div>
+    </section>
+  )
+
+  const expData: Experience[]     = ((!loadExp  && experiences  && experiences.length  > 0 ? experiences  : loadExp  ? [] : DEFAULT_EXPERIENCES)  as Experience[]).filter(e => e.visible !== false)
+  const eduData: Education[]      = ((!loadEdu  && educations   && educations.length   > 0 ? educations   : loadEdu  ? [] : DEFAULT_EDUCATIONS)   as Education[]).filter(e => e.visible !== false)
+  const certData: Certification[] = ((!loadCert && certifications && certifications.length > 0 ? certifications : loadCert ? [] : DEFAULT_CERTIFICATIONS) as Certification[]).filter(c => c.visible !== false)
 
   return (
     <section id="cv" className="py-32 bg-surface-light dark:bg-surface-dark">

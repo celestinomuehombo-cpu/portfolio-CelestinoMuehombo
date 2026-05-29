@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Portfolio from './pages/Portfolio'
+import ProjectDetail from './pages/ProjectDetail'
 import Login from './pages/admin/Login'
 import Dashboard from './pages/admin/Dashboard'
 import ProtectedRoute from './components/admin/ProtectedRoute'
@@ -14,6 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Portfolio />} />
           <Route path="/admin" element={<Login />} />
+          <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/admin/dashboard" element={
             <ProtectedRoute>
               <Dashboard />

@@ -4,11 +4,14 @@ import About from '../components/portfolio/About'
 import Skills from '../components/portfolio/Skills'
 import Projects from '../components/portfolio/Projects'
 import CV from '../components/portfolio/CV'
+import Certifications from '../components/portfolio/Certifications'
 import Contact from '../components/portfolio/Contact'
 import Footer from '../components/ui/Footer'
 import AnimatedSection from '../components/ui/AnimatedSection'
+import { useAnalytics } from '../hooks/useAnalytics'
 
 export default function Portfolio() {
+  useAnalytics()
   return (
     <div className="bg-surface-light dark:bg-surface-dark min-h-screen">
       <Navbar />
@@ -17,6 +20,7 @@ export default function Portfolio() {
       <AnimatedSection><Skills /></AnimatedSection>
       <AnimatedSection><Projects /></AnimatedSection>
       <AnimatedSection><CV /></AnimatedSection>
+      <AnimatedSection><Certifications /></AnimatedSection>
       <AnimatedSection><Contact /></AnimatedSection>
       <Footer />
     </div>

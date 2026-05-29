@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
-import { Save, Plus, Trash2, Upload } from 'lucide-react'
+import { Save, Plus, Trash2, Upload, Eye, EyeOff } from 'lucide-react'
 
 interface Experience {
   id?: string
@@ -10,6 +10,7 @@ interface Experience {
   description: string
   display_order: number
   logo_url: string | null
+  visible?: boolean
 }
 
 interface Education {
@@ -20,6 +21,7 @@ interface Education {
   description: string
   display_order: number
   logo_url: string | null
+  visible?: boolean
 }
 
 interface Certification {
@@ -30,6 +32,7 @@ interface Certification {
   description: string
   display_order: number
   logo_url: string | null
+  visible?: boolean
 }
 
 type TabType = 'experience' | 'education' | 'certifications'
@@ -237,9 +240,20 @@ export default function CVPanel() {
         <div className="space-y-4">
           {experiences.map((exp, index) => (
             <div key={exp.id ?? index}
-              className="bg-white dark:bg-surface2
-                border border-border-light dark:border-border-dark
-                rounded-2xl p-5">
+              className={`rounded-2xl p-5 border transition-all
+                ${exp.visible === false
+                  ? 'border-dashed border-border-light dark:border-border-dark opacity-60 bg-white dark:bg-surface2'
+                  : 'bg-white dark:bg-surface2 border-border-light dark:border-border-dark'}`}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-semibold text-text-light dark:text-text-dark truncate flex-1">
+                  {exp.title || 'Nouvelle expérience'}
+                </span>
+                <button onClick={() => setExperiences(prev => prev.map((e, i) => i === index ? { ...e, visible: e.visible === false ? true : false } : e))}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ml-3
+                    ${exp.visible === false ? 'bg-surface-light dark:bg-surface-dark text-muted hover:text-orange-500' : 'bg-green-500/10 text-green-600 hover:bg-red-500/10 hover:text-red-500'}`}>
+                  {exp.visible === false ? <><EyeOff size={13} /> Masqué</> : <><Eye size={13} /> Visible</>}
+                </button>
+              </div>
 
               {/* Logo upload */}
               <div className="flex items-center gap-4 mb-4">
@@ -353,9 +367,20 @@ export default function CVPanel() {
         <div className="space-y-4">
           {educations.map((edu, index) => (
             <div key={edu.id ?? index}
-              className="bg-white dark:bg-surface2
-                border border-border-light dark:border-border-dark
-                rounded-2xl p-5">
+              className={`rounded-2xl p-5 border transition-all
+                ${edu.visible === false
+                  ? 'border-dashed border-border-light dark:border-border-dark opacity-60 bg-white dark:bg-surface2'
+                  : 'bg-white dark:bg-surface2 border-border-light dark:border-border-dark'}`}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-semibold text-text-light dark:text-text-dark truncate flex-1">
+                  {edu.title || 'Nouvelle formation'}
+                </span>
+                <button onClick={() => setEducations(prev => prev.map((e, i) => i === index ? { ...e, visible: e.visible === false ? true : false } : e))}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ml-3
+                    ${edu.visible === false ? 'bg-surface-light dark:bg-surface-dark text-muted hover:text-orange-500' : 'bg-green-500/10 text-green-600 hover:bg-red-500/10 hover:text-red-500'}`}>
+                  {edu.visible === false ? <><EyeOff size={13} /> Masqué</> : <><Eye size={13} /> Visible</>}
+                </button>
+              </div>
 
               {/* Logo upload */}
               <div className="flex items-center gap-4 mb-4">
@@ -468,9 +493,20 @@ export default function CVPanel() {
         <div className="space-y-4">
           {certifications.map((cert, index) => (
             <div key={cert.id ?? index}
-              className="bg-white dark:bg-surface2
-                border border-border-light dark:border-border-dark
-                rounded-2xl p-5">
+              className={`rounded-2xl p-5 border transition-all
+                ${cert.visible === false
+                  ? 'border-dashed border-border-light dark:border-border-dark opacity-60 bg-white dark:bg-surface2'
+                  : 'bg-white dark:bg-surface2 border-border-light dark:border-border-dark'}`}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-semibold text-text-light dark:text-text-dark truncate flex-1">
+                  {cert.title || 'Nouvelle certification'}
+                </span>
+                <button onClick={() => setCertifications(prev => prev.map((c, i) => i === index ? { ...c, visible: c.visible === false ? true : false } : c))}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ml-3
+                    ${cert.visible === false ? 'bg-surface-light dark:bg-surface-dark text-muted hover:text-orange-500' : 'bg-green-500/10 text-green-600 hover:bg-red-500/10 hover:text-red-500'}`}>
+                  {cert.visible === false ? <><EyeOff size={13} /> Masqué</> : <><Eye size={13} /> Visible</>}
+                </button>
+              </div>
 
               {/* Logo upload */}
               <div className="flex items-center gap-4 mb-4">

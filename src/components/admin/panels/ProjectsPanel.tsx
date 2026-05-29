@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
-import { Save, Plus, Trash2, Upload, X, Image, Film, FileText } from 'lucide-react'
+import { Save, Plus, Trash2, Upload, X, Image, Film, FileText, Eye, EyeOff } from 'lucide-react'
 
 interface Project {
   id?: string
@@ -19,6 +19,7 @@ interface Project {
   category?: string
   highlight?: boolean
   skill_codes?: string[]
+  visible?: boolean
 }
 
 const AC_CODES: { domain: string; codes: { code: string; title: string }[] }[] = [
@@ -209,9 +210,31 @@ export default function ProjectsPanel() {
       <div className="space-y-4">
         {projects.map((proj, index) => (
           <div key={proj.id ?? index}
-            className="bg-white dark:bg-surface2
-              border border-border-light dark:border-border-dark
-              rounded-2xl p-5">
+            className={`bg-white dark:bg-surface2 rounded-2xl p-5 border transition-all
+              ${proj.visible === false
+                ? 'border-dashed border-border-light dark:border-border-dark opacity-60'
+                : 'border-border-light dark:border-border-dark'
+              }`}>
+            {/* Barre titre + visibilité */}
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-semibold text-text-light dark:text-text-dark truncate flex-1">
+                {proj.title || 'Nouveau projet'}
+              </span>
+              <button
+                onClick={() => updateProject(index, 'visible', proj.visible === false ? true : false)}
+                title={proj.visible === false ? 'Afficher sur le portfolio' : 'Masquer du portfolio'}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
+                  transition-all duration-200 flex-shrink-0 ml-3
+                  ${proj.visible === false
+                    ? 'bg-surface-light dark:bg-surface-dark text-muted hover:text-orange-500'
+                    : 'bg-green-500/10 text-green-600 hover:bg-red-500/10 hover:text-red-500'
+                  }`}>
+                {proj.visible === false
+                  ? <><EyeOff size={13} /> Masqué</>
+                  : <><Eye size={13} /> Visible</>
+                }
+              </button>
+            </div>
 
             {/* ── LOGO ── */}
             <div className="flex items-center gap-4 mb-4 p-4 rounded-xl

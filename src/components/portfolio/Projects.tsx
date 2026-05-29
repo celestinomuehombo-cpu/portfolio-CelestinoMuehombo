@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { ExternalLink, GitBranch, ArrowUpRight, X, Play, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useProjects } from '../../hooks/useSupabase'
+import SectionSkeleton from '../ui/SectionSkeleton'
 
 interface Project {
   id: string
@@ -19,6 +21,7 @@ interface Project {
   category: string
   highlight: boolean
   skill_codes?: string[]
+  visible?: boolean
 }
 
 const DEFAULT_PROJECTS: Project[] = [
@@ -274,7 +277,7 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
           )}
 
           {/* Liens */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-wrap gap-3 pt-2">
             {project.demo_url && (
               <a href={project.demo_url} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full
@@ -292,6 +295,12 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
                 <GitBranch size={14} /> GitHub
               </a>
             )}
+            <Link to={`/projects/${project.id}`}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full
+                border border-orange-500/40 text-orange-500
+                hover:bg-orange-500/10 text-sm font-medium transition-all duration-200">
+              <ArrowUpRight size={14} /> Page dédiée
+            </Link>
           </div>
         </div>
       </div>
@@ -301,15 +310,25 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
 
 export default function Projects() {
   const { data: projectsData, isLoading, isError } = useProjects()
+
+  if (isLoading) return (
+    <section id="projects" className="py-32 bg-white dark:bg-surface-dark">
+      <div className="max-w-6xl mx-auto px-16">
+        <SectionSkeleton lines={3} />
+      </div>
+    </section>
+  )
+
   const projects = (projectsData && projectsData.length > 0
     ? projectsData
-    : (!isLoading && (isError || projectsData !== undefined) ? DEFAULT_PROJECTS : [])
+    : (isError || projectsData !== undefined) ? DEFAULT_PROJECTS : []
   ) as Project[]
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
-  const highlighted = projects.find(p => p.highlight)
-  const others = projects.filter(p => !p.highlight)
+  const visible = projects.filter(p => p.visible !== false)
+  const highlighted = visible.find(p => p.highlight)
+  const others = visible.filter(p => !p.highlight)
 
   return (
     <section id="projects" className="py-32 bg-white dark:bg-surface-dark">

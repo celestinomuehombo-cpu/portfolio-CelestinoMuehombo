@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useSkills } from '../../hooks/useSupabase'
-import { CheckCircle, Clock, Circle, X, ChevronRight, Server, GitBranch, Code2, Shield, Eye } from 'lucide-react'
+import { useSkills, useProjects } from '../../hooks/useSupabase'
+import { CheckCircle, Clock, Circle, X, ChevronRight, Server, GitBranch, Code2, Shield, Eye, FolderOpen } from 'lucide-react'
 
 type Domain = 'administrer' | 'connecter' | 'programmer' | 'securiser' | 'surveiller'
 
@@ -43,13 +43,18 @@ type Skill = typeof DEFAULT_SKILLS[0]
 
 export default function Skills() {
   const { data: skillsData } = useSkills()
+  const { data: projectsData } = useProjects()
   const skills = (skillsData && skillsData.length > 0 ? skillsData : DEFAULT_SKILLS) as Skill[]
+  const allProjects = (projectsData ?? []) as { id: string; title: string; category: string; status: string; skill_codes?: string[] }[]
 
   const [activeDomain, setActiveDomain] = useState<Domain>('administrer')
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
 
   const domainSkills = skills.filter(s => s.domain === activeDomain)
   const activeDomainData = DOMAINS.find(d => d.id === activeDomain)
+
+  const linkedProjects = (code: string) =>
+    allProjects.filter(p => (p.skill_codes ?? []).includes(code))
 
   const statusConfig = (status: string | null) => {
     if (status === 'done') return { icon: <CheckCircle size={13} className="text-green-500" />, label: 'Réalisé', cls: 'text-green-600 bg-green-500/10' }
@@ -292,6 +297,51 @@ export default function Skills() {
                         text-text-light dark:text-text-dark font-medium">
                         {t}
                       </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Projets liés */}
+              {linkedProjects(selectedSkill.code).length > 0 && (
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-muted font-semibold
+                    mb-3 flex items-center gap-2">
+                    <FolderOpen size={13} className="text-orange-500" />
+                    Projets qui démontrent cette compétence
+                    <span className="flex-1 h-px bg-border-light dark:bg-border-dark" />
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    {linkedProjects(selectedSkill.code).map(p => (
+                      <a key={p.id} href="#projects"
+                        onClick={() => setSelectedSkill(null)}
+                        className="flex items-center justify-between px-4 py-3
+                          rounded-xl border border-border-light dark:border-border-dark
+                          bg-surface-light dark:bg-surface-dark
+                          hover:border-orange-500/40 hover:bg-orange-500/5
+                          transition-all duration-200 group">
+                        <div className="flex items-center gap-3">
+                          <span className="w-7 h-7 rounded-lg bg-orange-500/10
+                            flex items-center justify-center flex-shrink-0">
+                            <FolderOpen size={13} className="text-orange-500" />
+                          </span>
+                          <span className="text-sm font-medium text-text-light dark:text-text-dark
+                            group-hover:text-orange-500 transition-colors">
+                            {p.title}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs px-2 py-0.5 rounded-full
+                            bg-surface-light dark:bg-surface2
+                            border border-border-light dark:border-border-dark
+                            text-muted">
+                            {p.category}
+                          </span>
+                          <ChevronRight size={13} className="text-muted
+                            group-hover:text-orange-500 group-hover:translate-x-0.5
+                            transition-all duration-200" />
+                        </div>
+                      </a>
                     ))}
                   </div>
                 </div>

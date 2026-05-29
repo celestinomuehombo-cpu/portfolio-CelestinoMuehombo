@@ -113,10 +113,11 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 export default function Projects() {
-  const { data: projectsData } = useProjects()
+  const { data: projectsData, isLoading, isError } = useProjects()
   const projects = (projectsData && projectsData.length > 0
     ? projectsData
-    : DEFAULT_PROJECTS) as Project[]
+    : (!isLoading && (isError || projectsData !== undefined) ? DEFAULT_PROJECTS : [])
+  ) as Project[]
 
   const highlighted = projects.find(p => p.highlight)
   const others = projects.filter(p => !p.highlight)

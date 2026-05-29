@@ -10,7 +10,7 @@ const queryClient = new QueryClient()
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter basename="/portfolio-celestino/">
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Portfolio />} />
           <Route path="/admin" element={<Login />} />

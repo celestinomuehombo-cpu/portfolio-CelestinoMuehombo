@@ -1,7 +1,25 @@
 import { ExternalLink, GitBranch, ArrowUpRight } from 'lucide-react'
 import { useProjects } from '../../hooks/useSupabase'
 
-const DEFAULT_PROJECTS = [
+interface Project {
+  id: string
+  title: string
+  description: string
+  tech: string[]
+  github_url: string | null
+  demo_url: string | null
+  image_url: string | null
+  images: string[]
+  documents: string[]
+  document_labels: string[]
+  status: string
+  display_order: number
+  category: string
+  highlight: boolean
+  skill_codes?: string[]
+}
+
+const DEFAULT_PROJECTS: Project[] = [
   {
     id: '1',
     title: 'Tangisa',
@@ -97,7 +115,7 @@ export default function Projects() {
   const { data: projectsData } = useProjects()
   const projects = (projectsData && projectsData.length > 0
     ? projectsData
-    : DEFAULT_PROJECTS) as typeof DEFAULT_PROJECTS
+    : DEFAULT_PROJECTS) as Project[]
 
   const highlighted = projects.find(p => p.highlight)
   const others = projects.filter(p => !p.highlight)
@@ -320,6 +338,20 @@ export default function Projects() {
                   </span>
                 ))}
               </div>
+
+              {/* AC codes */}
+              {(project.skill_codes ?? []).length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-3 pt-3
+                  border-t border-border-light dark:border-border-dark">
+                  {(project.skill_codes ?? []).map((code, i) => (
+                    <span key={i} className="text-xs px-2 py-0.5 rounded-md
+                      bg-orange-500/10 text-orange-500 font-semibold
+                      border border-orange-500/20">
+                      {code}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

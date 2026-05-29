@@ -14,7 +14,45 @@ interface Project {
   display_order: number
   category?: string
   highlight?: boolean
+  skill_codes?: string[]
 }
+
+const AC_CODES: { domain: string; codes: { code: string; title: string }[] }[] = [
+  { domain: 'Administrer', codes: [
+    { code: 'AC21.01', title: 'Routage dynamique' },
+    { code: 'AC21.02', title: 'QoS & Sécurité' },
+    { code: 'AC21.03', title: 'Virtualisation' },
+    { code: 'AC21.04', title: 'Services réseaux' },
+    { code: 'AC21.05', title: 'Architecture Internet' },
+    { code: 'AC21.06', title: 'Travail en équipe' },
+  ]},
+  { domain: 'Connecter', codes: [
+    { code: 'AC22.01', title: 'Transmissions complexes' },
+    { code: 'AC22.02', title: 'Accès distant sécurisé' },
+    { code: 'AC22.03', title: 'Connexion multi-site' },
+    { code: 'AC22.04', title: 'Réseaux opérateurs' },
+    { code: 'AC22.05', title: 'Cahier des charges' },
+  ]},
+  { domain: 'Programmer', codes: [
+    { code: 'AC23.01', title: 'Scripts automatisation' },
+    { code: 'AC23.02', title: 'Développement web' },
+    { code: 'AC23.03', title: 'Application client/serveur' },
+    { code: 'AC23.04', title: 'Gestion de données' },
+    { code: 'AC23.05', title: 'Accès aux données' },
+  ]},
+  { domain: 'Sécuriser', codes: [
+    { code: 'AC24.01', title: 'Bonnes pratiques' },
+    { code: 'AC24.02', title: 'Sécurisation infra' },
+    { code: 'AC24.03', title: 'Sécurisation services' },
+    { code: 'AC24.04', title: 'Cryptographie' },
+    { code: 'AC24.05', title: 'Types d\'attaques' },
+    { code: 'AC24.06', title: 'Anglais technique' },
+  ]},
+  { domain: 'Surveiller', codes: [
+    { code: 'AC25.01', title: 'Protections anti-malware' },
+    { code: 'AC25.02', title: 'Tests de pénétration' },
+  ]},
+]
 
 const DEFAULT_PROJECTS: Project[] = [
   {
@@ -303,6 +341,54 @@ export default function ProjectsPanel() {
                   placeholder="https://..."
                   className={inputClass} />
               </div>
+            </div>
+
+            {/* Compétences liées */}
+            <div className="mb-4">
+              <label className="text-xs text-muted block mb-2">
+                Compétences (AC) démontrées par ce projet
+              </label>
+              <div className="space-y-3">
+                {AC_CODES.map(group => (
+                  <div key={group.domain}>
+                    <p className="text-xs font-semibold text-orange-500 uppercase tracking-wider mb-1.5">
+                      {group.domain}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {group.codes.map(({ code, title }) => {
+                        const selected = (proj.skill_codes ?? []).includes(code)
+                        return (
+                          <button
+                            key={code}
+                            type="button"
+                            onClick={() => {
+                              const current = proj.skill_codes ?? []
+                              updateProject(index, 'skill_codes',
+                                selected
+                                  ? current.filter(c => c !== code)
+                                  : [...current, code]
+                              )
+                            }}
+                            title={title}
+                            className={`text-xs px-2.5 py-1 rounded-lg border transition-all duration-150
+                              ${selected
+                                ? 'bg-orange-500 border-orange-500 text-white font-semibold'
+                                : 'bg-surface-light dark:bg-surface-dark border-border-light dark:border-border-dark text-muted hover:border-orange-500/50 hover:text-orange-500'
+                              }`}>
+                            {code}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {(proj.skill_codes ?? []).length > 0 && (
+                <p className="text-xs text-muted mt-2">
+                  {(proj.skill_codes ?? []).length} compétence(s) liée(s) :&nbsp;
+                  <span className="text-orange-500">{(proj.skill_codes ?? []).join(', ')}</span>
+                </p>
+              )}
             </div>
 
             {/* Actions */}

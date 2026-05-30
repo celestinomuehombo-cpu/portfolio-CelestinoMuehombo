@@ -16,24 +16,31 @@ interface Certification {
 
 const DEFAULT_CERTIFICATIONS: Certification[] = [
   { year: '2026', title: 'Ethical Hacker', issuer: 'Cisco',
-    description: 'Certification validant les compétences en cybersécurité offensive et défensive.',
+    description: 'Certificação que valida competências em cibersegurança ofensiva e defensiva.',
     display_order: 0, logo_url: null, cert_url: null },
-  { year: '2023', title: 'Hygiène Informatique', issuer: 'ANSSI',
-    description: 'Maîtrise des bonnes pratiques de sécurité informatique et de l\'hygiène numérique.',
+  { year: '2023', title: 'Higiene Informática', issuer: 'ANSSI',
+    description: 'Domínio das boas práticas de segurança informática e higiene digital.',
     display_order: 1, logo_url: null, cert_url: null },
 ]
 
 export default function CertificationsPanel() {
   const [certs, setCerts] = useState<Certification[]>([])
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
+  const [saving, setSaving] = useState<number | null>(null)
+  const [success, setSuccess] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [usingDefaults, setUsingDefaults] = useState(false)
 
   useEffect(() => {
     supabase.from('certifications').select('*').order('display_order')
-      .then(({ data }) => {
-        setCerts(data && data.length > 0 ? data : DEFAULT_CERTIFICATIONS)
+      .then(({ data, error: err }) => {
+        if (err) { setError(`Erro ao carregar: ${err.message}`); setLoading(false); return }
+        if (data && data.length > 0) {
+          setCerts(data)
+        } else {
+          setCerts(DEFAULT_CERTIFICATIONS)
+          setUsingDefaults(true)
+        }
         setLoading(false)
       })
   }, [])
@@ -49,8 +56,13 @@ export default function CertificationsPanel() {
     return supabase.storage.from('documents').getPublicUrl(path).data.publicUrl
   }
 
+  const showSuccess = (idx: number) => {
+    setSuccess(idx)
+    setTimeout(() => setSuccess(null), 3000)
+  }
+
   const save = async (cert: Certification, index: number) => {
-    setSaving(cert.id ?? `new-${index}`)
+    setSaving(index)
     setError(null)
     const payload = { ...cert }
     if (cert.id) {
@@ -59,16 +71,22 @@ export default function CertificationsPanel() {
     } else {
       const { data, error: err } = await supabase.from('certifications').insert(payload).select().single()
       if (err) { setError(err.message); setSaving(null); return }
-      if (data) setCerts(prev => prev.map((c, i) => i === index ? data : c))
+      if (data) {
+        setCerts(prev => prev.map((c, i) => i === index ? data : c))
+        setUsingDefaults(false)
+      }
     }
     setSaving(null)
-    setSuccess(cert.id ?? `new-${index}`)
-    setTimeout(() => setSuccess(null), 3000)
+    showSuccess(index)
   }
 
-  const remove = async (id: string) => {
-    await supabase.from('certifications').delete().eq('id', id)
-    setCerts(prev => prev.filter(c => c.id !== id))
+  const remove = async (cert: Certification, index: number) => {
+    if (cert.id) {
+      await supabase.from('certifications').delete().eq('id', cert.id)
+      setCerts(prev => prev.filter(c => c.id !== cert.id))
+    } else {
+      setCerts(prev => prev.filter((_, i) => i !== index))
+    }
   }
 
   const inputClass = `w-full px-4 py-2.5 rounded-xl
@@ -87,12 +105,18 @@ export default function CertificationsPanel() {
     <div className="max-w-3xl">
       <div className="mb-6">
         <h2 className="font-head font-bold text-2xl text-text-light dark:text-text-dark mb-1">
-          Certifications
+          Certificações
         </h2>
         <p className="text-sm text-muted">
-          Gérez vos certifications — affichées dans la section dédiée du portfolio
+          Gere as suas certificações — exibidas na secção dedicada do portfolio
         </p>
       </div>
+
+      {usingDefaults && (
+        <div className="mb-4 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-sm text-orange-500">
+          Nenhuma certificação na base de dados — estes dados são exemplos. Guarde-os para os ativar no portfolio.
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 text-red-500 text-sm border border-red-500/20">
@@ -108,17 +132,17 @@ export default function CertificationsPanel() {
                 ? 'border-dashed border-border-light dark:border-border-dark opacity-60 bg-white dark:bg-surface2'
                 : 'bg-white dark:bg-surface2 border-border-light dark:border-border-dark'}`}>
 
-            {/* Titre + visibilité */}
+            {/* Título + visibilidade */}
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-semibold text-text-light dark:text-text-dark truncate flex-1">
-                {cert.title || 'Nouvelle certification'}
+                {cert.title || 'Nova certificação'}
               </span>
               <button onClick={() => update(index, 'visible', cert.visible === false ? true : false)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ml-3
                   ${cert.visible === false
                     ? 'bg-surface-light dark:bg-surface-dark text-muted hover:text-orange-500'
                     : 'bg-green-500/10 text-green-600 hover:bg-red-500/10 hover:text-red-500'}`}>
-                {cert.visible === false ? <><EyeOff size={13} /> Masqué</> : <><Eye size={13} /> Visible</>}
+                {cert.visible === false ? <><EyeOff size={13} /> Oculto</> : <><Eye size={13} /> Visível</>}
               </button>
             </div>
 
@@ -135,7 +159,7 @@ export default function CertificationsPanel() {
                 <label className="inline-flex items-center gap-1.5 cursor-pointer
                   px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-500
                   text-xs font-medium hover:bg-orange-500/20 transition-colors">
-                  <Upload size={12} /> Logo
+                  <Upload size={12} /> {cert.logo_url ? 'Alterar logo' : 'Carregar logo'}
                   <input type="file" accept="image/*" className="hidden"
                     onChange={async e => {
                       const file = e.target.files?.[0]
@@ -147,22 +171,22 @@ export default function CertificationsPanel() {
                 {cert.logo_url && (
                   <button onClick={() => update(index, 'logo_url', null)}
                     className="ml-2 text-xs text-muted hover:text-red-500 transition-colors">
-                    Supprimer
+                    Remover
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Champs */}
+            {/* Campos */}
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
-                <label className="text-xs text-muted block mb-1">Année</label>
+                <label className="text-xs text-muted block mb-1">Ano</label>
                 <input type="text" value={cert.year}
                   onChange={e => update(index, 'year', e.target.value)}
                   placeholder="2026" className={inputClass} />
               </div>
               <div>
-                <label className="text-xs text-muted block mb-1">Organisme</label>
+                <label className="text-xs text-muted block mb-1">Entidade emissora</label>
                 <input type="text" value={cert.issuer}
                   onChange={e => update(index, 'issuer', e.target.value)}
                   placeholder="Cisco, ANSSI..." className={inputClass} />
@@ -170,63 +194,69 @@ export default function CertificationsPanel() {
             </div>
 
             <div className="mb-3">
-              <label className="text-xs text-muted block mb-1">Titre de la certification</label>
+              <label className="text-xs text-muted block mb-1">Título da certificação</label>
               <input type="text" value={cert.title}
                 onChange={e => update(index, 'title', e.target.value)}
                 placeholder="Ethical Hacker" className={inputClass} />
             </div>
 
             <div className="mb-3">
-              <label className="text-xs text-muted block mb-1">Description</label>
+              <label className="text-xs text-muted block mb-1">Descrição</label>
               <textarea rows={2} value={cert.description}
                 onChange={e => update(index, 'description', e.target.value)}
-                placeholder="Décrivez la certification..."
+                placeholder="Descreva a certificação..."
                 className={`${inputClass} resize-none`} />
+            </div>
+
+            <div className="mb-3">
+              <label className="text-xs text-muted block mb-1">Ordem de exibição</label>
+              <input type="number" value={cert.display_order}
+                onChange={e => update(index, 'display_order', Number(e.target.value))}
+                className={inputClass} />
             </div>
 
             <div className="mb-4">
               <label className="text-xs text-muted block mb-1 flex items-center gap-1">
-                <ExternalLink size={11} /> Lien vers le certificat (optionnel)
+                <ExternalLink size={11} /> Link para o certificado (opcional)
               </label>
               <input type="url" value={cert.cert_url ?? ''}
                 onChange={e => update(index, 'cert_url', e.target.value || null)}
                 placeholder="https://..." className={inputClass} />
             </div>
 
-            {/* Actions */}
+            {/* Ações */}
             <div className="flex items-center justify-between">
               <button onClick={() => save(cert, index)}
-                disabled={saving === (cert.id ?? `new-${index}`)}
+                disabled={saving === index}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl
                   bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium
                   transition-all duration-200 disabled:opacity-50">
                 <Save size={14} />
-                {saving === (cert.id ?? `new-${index}`) ? 'Enregistrement...' : 'Enregistrer'}
+                {saving === index ? 'A guardar...' : 'Guardar'}
               </button>
               <div className="flex items-center gap-3">
-                {success === (cert.id ?? `new-${index}`) && (
-                  <span className="text-xs text-green-500 font-medium">✓ Enregistré</span>
+                {success === index && (
+                  <span className="text-xs text-green-500 font-medium">✓ Guardado</span>
                 )}
-                {cert.id && (
-                  <button onClick={() => remove(cert.id!)}
-                    className="p-2 rounded-xl text-muted hover:text-red-500 hover:bg-red-500/10 transition-all">
-                    <Trash2 size={14} />
-                  </button>
-                )}
+                <button onClick={() => remove(cert, index)}
+                  className="p-2 rounded-xl text-muted hover:text-red-500 hover:bg-red-500/10 transition-all">
+                  <Trash2 size={14} />
+                </button>
               </div>
             </div>
           </div>
         ))}
 
         <button onClick={() => setCerts(prev => [...prev, {
-          year: '', title: '', issuer: '', description: '',
+          year: new Date().getFullYear().toString(),
+          title: '', issuer: '', description: '',
           display_order: prev.length, logo_url: null, cert_url: null, visible: true
         }])}
           className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl
             border-2 border-dashed border-border-light dark:border-border-dark
             text-muted hover:text-orange-500 hover:border-orange-500/40
             text-sm font-medium transition-all duration-200">
-          <Plus size={16} /> Ajouter une certification
+          <Plus size={16} /> Adicionar certificação
         </button>
       </div>
     </div>

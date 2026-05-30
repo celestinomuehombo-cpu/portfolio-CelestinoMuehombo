@@ -45,7 +45,15 @@ export interface Project {
   github_url: string | null
   demo_url: string | null
   image_url: string | null
-  status: 'done' | 'wip'
+  images?: string[]
+  videos?: string[]
+  documents?: string[]
+  document_labels?: string[]
+  skill_codes?: string[]
+  status: 'done' | 'wip' | 'pending'
+  category: string
+  highlight: boolean
+  visible?: boolean
   display_order: number
   created_at: string
   updated_at: string

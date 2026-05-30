@@ -1,20 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { toArr } from '../lib/utils'
 import { ArrowLeft, ExternalLink, GitBranch, Play, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
-
-function toArr(val: unknown): string[] {
-  if (Array.isArray(val)) return val as string[]
-  if (typeof val === 'string' && val.length > 0) {
-    if (val.startsWith('[')) {
-      try { const p = JSON.parse(val); if (Array.isArray(p)) return p } catch { /* */ }
-    }
-    if (val.startsWith('{')) {
-      return val.slice(1, -1).split(',').map(s => s.replace(/^"|"$/g, '').trim()).filter(Boolean)
-    }
-  }
-  return []
-}
 
 interface Project {
   id: string; title: string; description: string; tech: string[] | null

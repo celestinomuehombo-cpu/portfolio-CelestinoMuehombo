@@ -19,24 +19,24 @@ import ContactPanel from '../../components/admin/panels/ContactPanel'
 type Section = 'overview' | 'hero' | 'about' | 'skills' | 'projects' | 'cv' | 'certifications' | 'contact'
 
 const NAV_ITEMS = [
-  { id: 'overview' as Section, label: 'Vue d\'ensemble', icon: LayoutDashboard },
+  { id: 'overview' as Section, label: 'Visão geral', icon: LayoutDashboard },
   { id: 'hero' as Section, label: 'Hero', icon: User },
-  { id: 'about' as Section, label: 'À propos', icon: User },
-  { id: 'skills' as Section, label: 'Compétences', icon: Code2 },
-  { id: 'projects' as Section, label: 'Projets', icon: FolderOpen },
-  { id: 'cv' as Section, label: 'Parcours', icon: GraduationCap },
-  { id: 'certifications' as Section, label: 'Certifications', icon: Award },
-  { id: 'contact' as Section, label: 'Contact', icon: Mail },
+  { id: 'about' as Section, label: 'Sobre mim', icon: User },
+  { id: 'skills' as Section, label: 'Competências', icon: Code2 },
+  { id: 'projects' as Section, label: 'Projetos', icon: FolderOpen },
+  { id: 'cv' as Section, label: 'Percurso', icon: GraduationCap },
+  { id: 'certifications' as Section, label: 'Certificações', icon: Award },
+  { id: 'contact' as Section, label: 'Contacto', icon: Mail },
 ]
 
 const OVERVIEW_CARDS = [
-  { id: 'hero', label: 'Hero', icon: User, desc: 'Badge, nom, tagline, CV PDF' },
-  { id: 'about', label: 'À propos', icon: User, desc: 'Photo, description, infos' },
-  { id: 'skills', label: 'Compétences', icon: Code2, desc: 'ACs, projets, réflexions' },
-  { id: 'projects', label: 'Projets', icon: FolderOpen, desc: 'Visibilité, médias, ACs liés' },
-  { id: 'cv', label: 'Parcours', icon: GraduationCap, desc: 'Expériences et formations' },
-  { id: 'certifications', label: 'Certifications', icon: Award, desc: 'Cisco, ANSSI et autres certifs' },
-  { id: 'contact', label: 'Contact', icon: Mail, desc: 'Email, réseaux sociaux' },
+  { id: 'hero', label: 'Hero', icon: User, desc: 'Badge, nome, tagline, CV PDF' },
+  { id: 'about', label: 'Sobre mim', icon: User, desc: 'Foto, descrição, informações' },
+  { id: 'skills', label: 'Competências', icon: Code2, desc: 'ACs, projetos, reflexões' },
+  { id: 'projects', label: 'Projetos', icon: FolderOpen, desc: 'Visibilidade, media, ACs ligados' },
+  { id: 'cv', label: 'Percurso', icon: GraduationCap, desc: 'Experiências e formações' },
+  { id: 'certifications', label: 'Certificações', icon: Award, desc: 'Cisco, ANSSI e outras certifs' },
+  { id: 'contact', label: 'Contacto', icon: Mail, desc: 'Email, redes sociais' },
 ]
 
 export default function Dashboard() {
@@ -65,19 +65,19 @@ export default function Dashboard() {
           <div className="mb-8">
             <h2 className="font-head font-bold text-2xl
               text-text-light dark:text-text-dark mb-1">
-              Vue d'ensemble
+              Visão geral
             </h2>
             <p className="text-sm text-muted">
-              Sélectionnez une section à modifier
+              Selecione uma secção para editar
             </p>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 mb-8">
             {[
-              { label: 'Portfolio', value: 'En ligne', sub: 'Voir le site' },
-              { label: 'Sections', value: '6', sub: 'À gérer' },
-              { label: 'Disponibilité', value: 'Sept. 26', sub: 'Alternance' },
+              { label: 'Portfolio', value: 'Online', sub: 'Ver o site' },
+              { label: 'Secções', value: '7', sub: 'Para gerir' },
+              { label: 'Disponibilidade', value: 'Set. 26', sub: 'Alternância' },
             ].map((stat, i) => (
               <div key={i} className="bg-white dark:bg-surface2
                 border border-border-light dark:border-border-dark
@@ -131,7 +131,7 @@ export default function Dashboard() {
                   </p>
                   <div className="flex items-center text-xs text-muted
                     group-hover:text-orange-500 transition-colors duration-200">
-                    Modifier
+                    Editar
                     <ChevronRight size={12} className="ml-1
                       group-hover:translate-x-0.5 transition-transform duration-200" />
                   </div>
@@ -207,7 +207,7 @@ export default function Dashboard() {
               hover:bg-surface-light dark:hover:bg-surface-dark
               transition-all duration-200">
             <ExternalLink size={15} />
-            Voir le portfolio
+            Ver portfolio
           </a>
           <button onClick={() => setShowLogoutConfirm(true)}
             className="w-full flex items-center gap-3 px-3 py-2.5
@@ -215,7 +215,7 @@ export default function Dashboard() {
               hover:text-red-500 hover:bg-red-500/5
               transition-all duration-200">
             <LogOut size={15} />
-            Déconnexion
+            Sair
           </button>
         </div>
       </aside>
@@ -248,7 +248,7 @@ export default function Dashboard() {
                 {NAV_ITEMS.find(i => i.id === activeSection)?.label ?? 'Dashboard'}
               </h1>
               <p className="text-xs text-muted hidden sm:block">
-                Gérez le contenu de votre portfolio
+                Gere o conteúdo do seu portfolio
               </p>
             </div>
           </div>
@@ -277,10 +277,10 @@ export default function Dashboard() {
             rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <h3 className="font-head font-bold text-lg
               text-text-light dark:text-text-dark mb-2">
-              Déconnexion
+              Sair
             </h3>
             <p className="text-sm text-muted mb-6">
-              Êtes-vous sûr de vouloir vous déconnecter ?
+              Tem a certeza que quer sair?
             </p>
             <div className="flex gap-3">
               <button onClick={() => setShowLogoutConfirm(false)}
@@ -289,13 +289,13 @@ export default function Dashboard() {
                   text-sm font-medium text-muted
                   hover:text-text-light dark:hover:text-text-dark
                   transition-all duration-200">
-                Annuler
+                Cancelar
               </button>
               <button onClick={handleLogout}
                 className="flex-1 py-2.5 rounded-xl bg-red-500
                   hover:bg-red-600 text-white text-sm font-medium
                   transition-all duration-200">
-                Se déconnecter
+                Sair
               </button>
             </div>
           </div>

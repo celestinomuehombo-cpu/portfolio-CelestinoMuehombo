@@ -1,23 +1,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
+import { toArr } from '../../../lib/utils'
 import { Save, Plus, Trash2, Upload, X, Image, Film, FileText, Eye, EyeOff } from 'lucide-react'
-
-function toArr(val: unknown): string[] {
-  if (Array.isArray(val)) return val as string[]
-  if (typeof val === 'string' && val.length > 0) {
-    if (val.startsWith('[')) {
-      try { const p = JSON.parse(val); if (Array.isArray(p)) return p } catch { /* */ }
-    }
-    if (val.startsWith('{')) {
-      return val.slice(1, -1).split(',').map(s => s.replace(/^"|"$/g, '').trim()).filter(Boolean)
-    }
-  }
-  return []
-}
 
 function normalizeProject(p: Record<string, unknown>): Project {
   return {
-    ...(p as Project),
+    ...(p as unknown as Project),
     tech: toArr(p.tech),
     images: toArr(p.images),
     videos: toArr(p.videos),
@@ -242,16 +230,16 @@ export default function ProjectsPanel() {
       <div className="mb-6">
         <h2 className="font-head font-bold text-2xl
           text-text-light dark:text-text-dark mb-1">
-          Projets
+          Projetos
         </h2>
         <p className="text-sm text-muted">
-          Gérez vos projets — Tangisa et projets académiques
+          Gere os seus projetos — visibilidade, media e competências
         </p>
       </div>
 
       {usingDefaults && (
         <div className="mb-4 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-sm text-orange-500">
-          Aucun projet en base de données — ces données sont des exemples. Enregistrez-les pour les activer sur le portfolio.
+          Nenhum projeto na base de dados — estes dados são exemplos. Guarde-os para os ativar no portfolio.
         </div>
       )}
 
@@ -284,8 +272,8 @@ export default function ProjectsPanel() {
                     : 'bg-green-500/10 text-green-600 hover:bg-red-500/10 hover:text-red-500'
                   }`}>
                 {proj.visible === false
-                  ? <><EyeOff size={13} /> Masqué</>
-                  : <><Eye size={13} /> Visible</>
+                  ? <><EyeOff size={13} /> Oculto</>
+                  : <><Eye size={13} /> Visível</>
                 }
               </button>
             </div>
@@ -305,16 +293,16 @@ export default function ProjectsPanel() {
               </div>
               <div className="flex-1">
                 <p className="text-xs font-semibold text-text-light dark:text-text-dark mb-1">
-                  Logo du projet
+                  Logo do projeto
                 </p>
-                <p className="text-xs text-muted mb-2">Image affichée sur la carte du projet</p>
+                <p className="text-xs text-muted mb-2">Imagem exibida no cartão do projeto</p>
                 <label className="inline-flex items-center gap-1.5 cursor-pointer
                   px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-500
                   text-xs font-medium hover:bg-orange-500/20 transition-colors">
                   {uploading[`logo-${index}`]
                     ? <span className="w-3 h-3 rounded-full border border-orange-500 border-t-transparent animate-spin" />
                     : <Upload size={12} />}
-                  {proj.image_url ? 'Changer le logo' : 'Uploader le logo'}
+                  {proj.image_url ? 'Alterar logo' : 'Carregar logo'}
                   <input type="file" accept="image/*" className="hidden"
                     onChange={async e => {
                       const file = e.target.files?.[0]
@@ -328,7 +316,7 @@ export default function ProjectsPanel() {
                 {proj.image_url && (
                   <button onClick={() => updateProject(index, 'image_url', null)}
                     className="ml-2 text-xs text-muted hover:text-red-500 transition-colors">
-                    Supprimer
+                    Remover
                   </button>
                 )}
               </div>
@@ -340,8 +328,8 @@ export default function ProjectsPanel() {
               border border-border-light dark:border-border-dark">
               <p className="text-xs font-semibold text-text-light dark:text-text-dark
                 flex items-center gap-2">
-                Médias de la description
-                <span className="font-normal text-muted">— photos et vidéos affichées dans la fiche</span>
+                Media da descrição
+                <span className="font-normal text-muted">— fotos e vídeos exibidos na ficha</span>
               </p>
 
               {/* Photos */}
@@ -391,8 +379,8 @@ export default function ProjectsPanel() {
               {/* Vidéos */}
               <div>
                 <p className="text-xs text-muted flex items-center gap-1.5 mb-2">
-                  <Film size={12} className="text-blue-600 dark:text-blue-400" /> Vidéos
-                  <span>(YouTube, Vimeo ou lien direct)</span>
+                  <Film size={12} className="text-blue-600 dark:text-blue-400" /> Vídeos
+                  <span>(YouTube, Vimeo ou link direto)</span>
                 </p>
                 {toArr(proj.videos).map((vid, vi) => (
                   <div key={vi} className="flex items-center gap-2 mb-1.5">
@@ -421,7 +409,7 @@ export default function ProjectsPanel() {
                         setNewVideoUrl(prev => ({ ...prev, [index]: '' }))
                       }
                     }}
-                    placeholder="Coller un lien vidéo..."
+                    placeholder="Colar link de vídeo..."
                     className={`flex-1 ${inputClass}`} />
                   <button
                     onClick={() => {
@@ -467,7 +455,7 @@ export default function ProjectsPanel() {
                 <input type="text"
                   value={newDocLabel[index] ?? ''}
                   onChange={e => setNewDocLabel(prev => ({ ...prev, [index]: e.target.value }))}
-                  placeholder="Nom du document (ex: Rapport PDF)"
+                  placeholder="Nome do documento (ex: Relatório PDF)"
                   className={`flex-1 ${inputClass}`} />
                 <label className="px-3 py-2 rounded-xl bg-orange-500/10 text-orange-500
                   hover:bg-orange-500/20 cursor-pointer transition-colors
@@ -500,7 +488,7 @@ export default function ProjectsPanel() {
                 <label className="text-xs text-muted block mb-1">Titre</label>
                 <input type="text" value={proj.title}
                   onChange={e => updateProject(index, 'title', e.target.value)}
-                  placeholder="Nom du projet"
+                  placeholder="Nome do projeto"
                   className={inputClass} />
               </div>
               <div>
@@ -508,8 +496,8 @@ export default function ProjectsPanel() {
                 <select value={proj.status}
                   onChange={e => updateProject(index, 'status', e.target.value)}
                   className={inputClass}>
-                  <option value="done">Réalisé</option>
-                  <option value="wip">En cours</option>
+                  <option value="done">Concluído</option>
+                  <option value="wip">Em curso</option>
                 </select>
               </div>
             </div>
@@ -536,7 +524,7 @@ export default function ProjectsPanel() {
                     onChange={e => updateProject(index, 'highlight', e.target.checked)}
                     className="w-4 h-4 accent-orange-500" />
                   <span className="text-sm text-text-light dark:text-text-dark">
-                    Projet mis en avant
+                    Projeto em destaque
                   </span>
                 </label>
               </div>
@@ -547,7 +535,7 @@ export default function ProjectsPanel() {
               <label className="text-xs text-muted block mb-1">Description</label>
               <textarea rows={3} value={proj.description}
                 onChange={e => updateProject(index, 'description', e.target.value)}
-                placeholder="Décrivez le projet..."
+                placeholder="Descreva o projeto..."
                 className={`${inputClass} resize-none`} />
             </div>
 
@@ -574,7 +562,7 @@ export default function ProjectsPanel() {
                   value={newTech[index] ?? ''}
                   onChange={e => setNewTech(prev => ({ ...prev, [index]: e.target.value }))}
                   onKeyDown={e => e.key === 'Enter' && addTech(index)}
-                  placeholder="Ex: React, Python..."
+                  placeholder="Ex: React, Python, Node..."
                   className={`flex-1 ${inputClass}`} />
                 <button onClick={() => addTech(index)}
                   className="px-3 py-2 rounded-xl bg-orange-500/10
@@ -608,7 +596,7 @@ export default function ProjectsPanel() {
             {/* Compétences liées */}
             <div className="mb-4">
               <label className="text-xs text-muted block mb-2">
-                Compétences (AC) démontrées par ce projet
+                Competências (AC) demonstradas por este projeto
               </label>
               <div className="space-y-3">
                 {AC_CODES.map(group => (
@@ -647,7 +635,7 @@ export default function ProjectsPanel() {
               </div>
               {toArr(proj.skill_codes).length > 0 && (
                 <p className="text-xs text-muted mt-2">
-                  {toArr(proj.skill_codes).length} compétence(s) liée(s) :&nbsp;
+                  {toArr(proj.skill_codes).length} competência(s) ligada(s):&nbsp;
                   <span className="text-orange-500">{toArr(proj.skill_codes).join(', ')}</span>
                 </p>
               )}
@@ -661,11 +649,11 @@ export default function ProjectsPanel() {
                   bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium
                   transition-all duration-200 disabled:opacity-50">
                 <Save size={14} />
-                {saving === index ? 'Enregistrement...' : 'Enregistrer'}
+                {saving === index ? 'A guardar...' : 'Guardar'}
               </button>
               <div className="flex items-center gap-3">
                 {success === index && (
-                  <span className="text-xs text-green-500 font-medium">✓ Enregistré</span>
+                  <span className="text-xs text-green-500 font-medium">✓ Guardado</span>
                 )}
                 <button
                   onClick={() => proj.id ? deleteProject(proj.id) : removeUnsaved(index)}
@@ -685,7 +673,7 @@ export default function ProjectsPanel() {
             text-muted hover:text-orange-500 hover:border-orange-500/40
             text-sm font-medium transition-all duration-200">
           <Plus size={16} />
-          Ajouter un projet
+          Adicionar projeto
         </button>
       </div>
     </div>

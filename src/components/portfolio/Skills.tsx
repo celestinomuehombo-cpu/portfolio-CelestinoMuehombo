@@ -185,6 +185,20 @@ export default function Skills() {
                   )}
                 </div>
 
+                {/* Projetos ligados */}
+                {linkedProjects(skill.code).length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {linkedProjects(skill.code).map(p => (
+                      <span key={p.id}
+                        className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full
+                          bg-orange-500/10 text-orange-500 border border-orange-500/20 font-medium">
+                        <FolderOpen size={10} />
+                        {p.title}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-3
                   border-t border-border-light dark:border-border-dark">

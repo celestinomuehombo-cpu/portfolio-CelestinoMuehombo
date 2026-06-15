@@ -81,8 +81,8 @@ export default function ProjectDetail() {
         </Link>
 
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="mb-10 pb-10 border-b border-border-light dark:border-border-dark">
+          <div className="flex flex-wrap items-center gap-2 mb-5">
             <span className="text-xs font-semibold px-3 py-1 rounded-full text-orange-500 bg-orange-500/10">
               {project.category}
             </span>
@@ -90,12 +90,16 @@ export default function ProjectDetail() {
               {status.label}
             </span>
           </div>
-          <h1 className="font-head font-black text-3xl md:text-5xl text-text-light dark:text-text-dark mb-4">
+          <h1 className="font-head font-black text-3xl md:text-5xl text-text-light dark:text-text-dark mb-6">
             {project.title}
           </h1>
-          <p className="text-lg font-light leading-relaxed text-muted max-w-2xl">
-            {project.description}
-          </p>
+          <div className="space-y-4 max-w-2xl">
+            {project.description.split('\n\n').map((para, i) => (
+              <p key={i} className="text-base font-light leading-relaxed text-muted whitespace-pre-line">
+                {para}
+              </p>
+            ))}
+          </div>
         </div>
 
         {/* Galerie */}

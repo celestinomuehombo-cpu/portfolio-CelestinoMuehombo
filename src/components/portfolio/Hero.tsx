@@ -152,8 +152,10 @@ export default function Hero() {
               <Mail size={16} />
               Me contacter
             </a>
-            <a href={hero?.cv_url ?? '#'}
-              download
+            <a href={hero?.cv_url ?? '#contact'}
+              target={hero?.cv_url ? '_blank' : undefined}
+              rel={hero?.cv_url ? 'noopener noreferrer' : undefined}
+              download={Boolean(hero?.cv_url)}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full
                 border border-border-light dark:border-border-dark
                 text-text-light dark:text-text-dark font-medium

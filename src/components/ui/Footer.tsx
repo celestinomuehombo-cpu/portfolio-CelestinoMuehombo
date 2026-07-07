@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 export default function Footer() {
   const year = new Date().getFullYear()
 
@@ -14,9 +16,14 @@ export default function Footer() {
         </a>
 
         {/* Copyright */}
-        <p className="text-sm text-muted text-center">
-          © {year} Celestino MUEHOMBO — Tous droits réservés
-        </p>
+        <div className="flex flex-col items-center gap-1">
+          <p className="text-sm text-muted text-center">
+            © {year} Celestino MUEHOMBO — Tous droits réservés
+          </p>
+          <Link to="/mentions-legales" className="text-xs text-muted hover:text-orange-500 transition-colors">
+            Mentions légales
+          </Link>
+        </div>
 
         {/* Socials */}
         <div className="flex items-center gap-3">
